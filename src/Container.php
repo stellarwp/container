@@ -59,7 +59,7 @@ abstract class Container implements ContainerInterface {
 	 * @return mixed The resolved dependency.
 	 */
 	public function get( $id ) {
-		if ( ! isset( $this->resolved[ $id ] ) ) {
+		if ( ! key_exists( $id, $this->resolved ) ) {
 			$this->resolved[ $id ] = $this->make( $id );
 		}
 
@@ -80,7 +80,7 @@ abstract class Container implements ContainerInterface {
 	public function has( $id ) {
 		$config = $this->config();
 
-		return isset( $config[ $id ] );
+		return key_exists( $id, $config );
 	}
 
 	/**
@@ -98,11 +98,15 @@ abstract class Container implements ContainerInterface {
 	public function make( $id ) {
 		$config = $this->config();
 
-		if ( ! isset( $config[ $id ] ) ) {
+		if ( ! key_exists( $id, $config ) ) {
 			throw new NotFoundException( sprintf( 'No container definition could be found for "%s".', $id ) );
 		}
 
 		try {
+			if ( null === $config[ $id ] ) {
+				return new $id();
+			}
+
 			$resolved = $config[ $id ]( $this );
 		} catch ( \Exception $e ) {
 			throw new ContainerException(
@@ -123,6 +127,6 @@ abstract class Container implements ContainerInterface {
 	 * @return bool True if the dependency exists in cache, false otherwise.
 	 */
 	public function resolved( $id ) {
-		return isset( $this->resolved[ $id ] );
+		return key_exists( $id, $this->resolved );
 	}
 }

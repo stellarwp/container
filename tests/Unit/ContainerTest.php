@@ -74,6 +74,20 @@ class ContainerTest extends TestCase {
 	/**
 	 * @test
 	 */
+	public function get_should_be_able_to_return_a_new_instance_of_an_identifier_with_a_null_callable() {
+		/** @var \PHPUnit\Framework\MockObject\MockObject&Container $container */
+		$container = $this->getMockForAbstractClass( Container::class );
+		$container->method( 'config' )
+			->willReturn( [
+				\DateTime::class => null,
+			] );
+
+		$this->assertInstanceOf( \DateTime::class, $container->get( \DateTime::class ) );
+	}
+
+	/**
+	 * @test
+	 */
 	public function get_should_throw_a_NotFoundException_if_the_given_entry_is_undefined() {
 		$this->expectException( NotFoundException::class );
 		$this->container->get( 'some-other-key' );
@@ -137,6 +151,20 @@ class ContainerTest extends TestCase {
 
 		$this->assertEquals( $first, $second, 'Expected two instances of the same class.' );
 		$this->assertNotSame( $first, $second, 'Two separate instances should have been returned.' );
+	}
+
+	/**
+	 * @test
+	 */
+	public function make_should_be_able_to_return_a_new_instance_of_an_identifier_with_a_null_callable() {
+		/** @var \PHPUnit\Framework\MockObject\MockObject&Container $container */
+		$container = $this->getMockForAbstractClass( Container::class );
+		$container->method( 'config' )
+			->willReturn( [
+				\DateTime::class => null,
+			] );
+
+		$this->assertInstanceOf( \DateTime::class, $container->make( \DateTime::class ) );
 	}
 
 	/**
