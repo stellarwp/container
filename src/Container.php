@@ -84,10 +84,10 @@ abstract class Container implements ContainerInterface {
 	 *
 	 * Results will be cached, enabling subsequent results to return the same instance.
 	 *
+	 * @param string $abstract The dependency's abstract identifier.
+	 *
 	 * @throws NotFoundException  If no entry was found for this abstract.
 	 * @throws ContainerException Error while retrieving the entry.
-	 *
-	 * @param string $abstract The dependency's abstract identifier.
 	 *
 	 * @return mixed The resolved dependency.
 	 */
@@ -121,10 +121,10 @@ abstract class Container implements ContainerInterface {
 	 *
 	 * Unlike get(), a new, uncached instance will be created upon each call.
 	 *
+	 * @param string $abstract The dependency's abstract identifier.
+	 *
 	 * @throws NotFoundException  If no entry was found for this abstract.
 	 * @throws ContainerException Error while retrieving the entry.
-	 *
-	 * @param string $abstract The dependency's abstract identifier.
 	 *
 	 * @return mixed The resolved dependency.
 	 */
@@ -187,12 +187,13 @@ abstract class Container implements ContainerInterface {
 	 * Note that this Singleton usage is totally optional: the class constructor can still be used
 	 * normally should you need multiple instances of the container.
 	 *
-	 * @param ?Container A concrete instance of the container, used to seed this and future calls
-	 *                   to the instance() method. Default is empty (create and cache a new instance).
+	 * @param ?Container $instance A concrete instance of the container, used to seed this and future
+	 *                             calls to the instance() method. Default is empty (create and cache
+	 *                             a new instance).
 	 *
 	 * @return self
 	 */
-	public static function instance( ?Container $instance = null ) {
+	public static function instance( Container $instance = null ) {
 		if ( null !== $instance ) {
 			self::$instance = $instance;
 		}
@@ -206,8 +207,6 @@ abstract class Container implements ContainerInterface {
 
 	/**
 	 * Reset the current Singleton instance.
-	 *
-	 * @return void
 	 */
 	public static function reset() {
 		self::$instance = null;

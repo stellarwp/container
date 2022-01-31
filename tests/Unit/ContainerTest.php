@@ -42,7 +42,7 @@ class ContainerTest extends TestCase {
 		$this->assertSame( $instance, $container->make( Concrete::EXCEPTION_KEY ) );
 		$this->assertEquals(
 			$untouched,
-			$container->get( Concrete::VALID_KEY),
+			$container->get( Concrete::VALID_KEY ),
 			'Only values that have been extended should be replaced.'
 		);
 	}
@@ -128,7 +128,7 @@ class ContainerTest extends TestCase {
 	 */
 	public function forget_should_remove_the_cached_dependency() {
 		$container = new Concrete();
-		$container->get(Concrete::VALID_KEY);
+		$container->get( Concrete::VALID_KEY );
 
 		$this->assertSame( $container, $container->forget( Concrete::VALID_KEY ) );
 		$this->assertArrayNotHasKey( Concrete::VALID_KEY, $this->getResolvedCache( $container ) );

@@ -99,6 +99,11 @@
 		<type>warning</type>
 	</rule>
 
+	<!-- Tests may use whatever functions needed. -->
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+
 	<!-- Translation & localization -->
 
 	<!-- Rules for localization text-domain. -->

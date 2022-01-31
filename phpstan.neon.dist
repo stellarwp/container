@@ -27,6 +27,8 @@ parameters:
 	reportStaticMethodSignatures: true
 	checkTooWideReturnTypesInProtectedAndPublicMethods: true
 	checkUninitializedProperties: true
+	checkMissingIterableValueType: true
 
-	# To-be restored in https://liquidweb.atlassian.net/browse/NXMAPPS-348
-	checkMissingIterableValueType: false
+	ignoreErrors:
+		# WordPress coding standards dictate that we *not* use @return void
+		- '#Method .+ has no return type specified#'
