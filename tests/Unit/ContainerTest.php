@@ -22,6 +22,103 @@ class ContainerTest extends TestCase {
 	protected $container;
 
 	/**
+	 * @testdox
+	 * @testdox extend() should overwrite existing definitions
+	 */
+	public function extend_should_overwrite_existing_definitions() {
+		$instance  = new \stdClass();
+		$container = new Concrete();
+		$untouched = $container->get( Concrete::VALID_KEY );
+
+		$container->extend( Concrete::EXCEPTION_KEY, function () use ( $instance ) {
+			return $instance;
+		});
+
+		$this->assertSame( $instance, $container->get( Concrete::EXCEPTION_KEY ) );
+		$this->assertSame( $instance, $container->make( Concrete::EXCEPTION_KEY ) );
+		$this->assertEquals(
+			$untouched,
+			$container->get( Concrete::VALID_KEY),
+			'Only values that have been extended should be replaced.'
+		);
+	}
+
+	/**
+	 * @test
+	 * @testdox extend() should be able to add new definitions
+	 */
+	public function extend_should_be_able_to_add_new_definitions() {
+		$instance  = new \stdClass();
+		$container = new Concrete();
+
+		$container->extend( Concrete::INVALID_KEY, function () use ( $instance ) {
+			return $instance;
+		} );
+
+		$this->assertSame( $instance, $container->get( Concrete::INVALID_KEY ) );
+	}
+
+	/**
+	 * @test
+	 * @testdox extend() should flush the cached resolution of the given abstract
+	 */
+	public function extend_should_flush_the_cached_resolution_of_the_given_abstract() {
+		$container = new Concrete();
+		$previous  = $container->get( Concrete::VALID_KEY );
+
+		$container->extend( Concrete::VALID_KEY, function () {
+			return (object) [
+				uniqid(),
+			];
+		} );
+
+		$new = $container->get( Concrete::VALID_KEY );
+		$this->assertNotEquals( $previous, $new );
+		$this->assertSame( $new, $container->get( Concrete::VALID_KEY ) );
+	}
+
+	/**
+	 * @test
+	 * @testdox extend() should be able to be used on the same abstract multiple times
+	 */
+	public function extend_should_be_able_to_be_used_on_the_same_abstract_multiple_times() {
+		$container = new Concrete();
+		$instance1 = (object) [ uniqid() ];
+		$instance2 = (object) [ uniqid() ];
+
+		$container->extend( Concrete::VALID_KEY, function () use ( $instance1 ) {
+			return $instance1;
+		} );
+		$this->assertSame( $instance1, $container->get( Concrete::VALID_KEY ) );
+
+		$container->extend( Concrete::VALID_KEY, function () use ( $instance2 ) {
+			return $instance2;
+		} );
+		$this->assertSame( $instance2, $container->get( Concrete::VALID_KEY ) );
+	}
+
+	/**
+	 * @test
+	 * @testdox extend() should only impact the called container instance
+	 */
+	public function extend_should_only_impact_the_called_container_instance() {
+		$container1 = new Concrete();
+		$container2 = new Concrete();
+
+		$container1->extend( Concrete::VALID_KEY, function () {
+			return (object) [
+				uniqid(),
+			];
+		});
+
+		$this->assertNotEquals(
+			$container1->make( Concrete::VALID_KEY ),
+			$container2->make( Concrete::VALID_KEY ),
+			'Only $container2 should have been extended, so the values should be different.'
+		);
+	}
+
+	/**
 	 * @test
 	 * @testdox forget() should remove the cached dependency
 	 */
@@ -208,6 +305,37 @@ class ContainerTest extends TestCase {
 
 		$this->assertArrayNotHasKey( Concrete::INVALID_KEY, $this->getResolvedCache( $container ) );
 		$this->assertFalse( $container->resolved( Concrete::INVALID_KEY ) );
+	}
+
+	/**
+	 * @test
+	 * @testdox restore() should remove the extension for a given abstract
+	 */
+	public function restore_should_remove_the_extension_for_a_given_abstract() {
+		$container = new Concrete();
+		$original  = $container->get( Concrete::VALID_KEY );
+
+		$container->extend( Concrete::VALID_KEY, function () {
+			return (object) [
+				uniqid(),
+			];
+		});
+
+		$extended = $container->get( Concrete::VALID_KEY );
+
+		$this->assertSame( $container, $container->restore( Concrete::VALID_KEY ) );
+		$this->assertNotEquals( $extended, $container->get( Concrete::VALID_KEY ) );
+		$this->assertEquals( $original, $container->get( Concrete::VALID_KEY ) );
+	}
+
+	/**
+	 * @test
+	 * @testdox restore() should just return if the given extension does not exist
+	 */
+	public function restore_should_just_return_if_the_given_extension_does_not_exist() {
+		$container = new Concrete();
+
+		$this->assertSame( $container, $container->restore( Concrete::VALID_KEY ) );
 	}
 
 	/**

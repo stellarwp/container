@@ -17,6 +17,13 @@ use StellarWP\Container\Exceptions\NotFoundException;
 abstract class Container implements ContainerInterface {
 
 	/**
+	 * Extensions to the default container configuration.
+	 *
+	 * @var Array<string,callable> A mapping of abstracts to callables.
+	 */
+	protected $extensions = [];
+
+	/**
 	 * A cache of all resolved dependencies.
 	 *
 	 * @var Array<string,mixed> The resolved dependency, keyed by its abstract.
@@ -39,6 +46,25 @@ abstract class Container implements ContainerInterface {
 	 * @return Array<string,callable> A mapping of abstracts to callables.
 	 */
 	abstract public function config();
+
+	/**
+	 * Extend the default container configuration.
+	 *
+	 * This allows definitions to be dynamically added or updated, which is especially useful
+	 * during testing.
+	 *
+	 * @param string   $abstract   The abstract to be added or replaced.
+	 * @param callable $definition A callable to construct the concrete instance of the abstract.
+	 *                             Like those in config(), each callable will recieve the current
+	 *                             container instance.
+	 *
+	 * @return self
+	 */
+	public function extend( $abstract, callable $definition ) {
+		$this->extensions[ $abstract ] = $definition;
+
+		return $this->forget( $abstract );
+	}
 
 	/**
 	 * Remove the cached resolution for the given abstract.
@@ -103,7 +129,7 @@ abstract class Container implements ContainerInterface {
 	 * @return mixed The resolved dependency.
 	 */
 	public function make( $abstract ) {
-		$config = $this->config();
+		$config = array_merge( $this->config(), $this->extensions );
 
 		if ( ! key_exists( $abstract, $config ) ) {
 			throw new NotFoundException(
@@ -137,6 +163,19 @@ abstract class Container implements ContainerInterface {
 	 */
 	public function resolved( $abstract ) {
 		return key_exists( $abstract, $this->resolved );
+	}
+
+	/**
+	 * Remove any extensions for the given abstract, reverting to its original definition.
+	 *
+	 * @param string $abstract The abstract to restore.
+	 *
+	 * @return self
+	 */
+	public function restore( $abstract ) {
+		unset( $this->extensions[ $abstract ] );
+
+		return $this->forget( $abstract );
 	}
 
 	/**
