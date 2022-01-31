@@ -24,6 +24,13 @@ abstract class Container implements ContainerInterface {
 	protected $resolved = [];
 
 	/**
+	 * The cached, Singleton instance of the container.
+	 *
+	 * @var self
+	 */
+	protected static $instance;
+
+	/**
 	 * Retrieve a mapping of identifiers to callables.
 	 *
 	 * When an identifier is requested through the container, the container will find the given
@@ -128,5 +135,24 @@ abstract class Container implements ContainerInterface {
 	 */
 	public function resolved( $id ) {
 		return key_exists( $id, $this->resolved );
+	}
+
+	/**
+	 * Retrieve a Singleton instance of the container.
+	 *
+	 * Singletons are generally not a great idea, but the container is one place where it can make
+	 * a lot of sense.
+	 *
+	 * Note that this Singleton usage is totally optional: the class constructor can still be used
+	 * normally should you need multiple instances of the container.
+	 *
+	 * @return self
+	 */
+	public static function instance() {
+		if (! isset( self::$instance ) ) {
+			self::$instance = new static();
+		}
+
+		return self::$instance;
 	}
 }
