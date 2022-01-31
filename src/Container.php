@@ -19,7 +19,7 @@ abstract class Container implements ContainerInterface {
 	/**
 	 * A cache of all resolved dependencies.
 	 *
-	 * @var Array<string,mixed>
+	 * @var Array<string,mixed> The resolved dependency, keyed by its abstract.
 	 */
 	protected $resolved = [];
 
@@ -31,93 +31,95 @@ abstract class Container implements ContainerInterface {
 	protected static $instance;
 
 	/**
-	 * Retrieve a mapping of identifiers to callables.
+	 * Retrieve a mapping of abstract identifiers to callables.
 	 *
-	 * When an identifier is requested through the container, the container will find the given
+	 * When an abstract is requested through the container, the container will find the given
 	 * dependency in this array, execute the callable, and return the result.
 	 *
-	 * @return Array<string,callable> A mapping of identifiers to callables.
+	 * @return Array<string,callable> A mapping of abstracts to callables.
 	 */
 	abstract public function config();
 
 	/**
-	 * Remove the cached resolution for the given identifier.
+	 * Remove the cached resolution for the given abstract.
 	 *
-	 * @param string $id The identifier to forget.
+	 * @param string $abstract The abstract identifier to forget.
 	 *
 	 * @return self
 	 */
-	public function forget( $id ) {
-		unset( $this->resolved[ $id ] );
+	public function forget( $abstract ) {
+		unset( $this->resolved[ $abstract ] );
 
 		return $this;
 	}
 
 	/**
-	 * Resolve the given identifier through the container and return it.
+	 * Resolve the given abstract through the container and return it.
 	 *
 	 * Results will be cached, enabling subsequent results to return the same instance.
 	 *
-	 * @throws NotFoundException  If no entry was found for this identifier.
+	 * @throws NotFoundException  If no entry was found for this abstract.
 	 * @throws ContainerException Error while retrieving the entry.
 	 *
-	 * @param string $id The dependency's identifier.
+	 * @param string $abstract The dependency's abstract identifier.
 	 *
 	 * @return mixed The resolved dependency.
 	 */
-	public function get( $id ) {
-		if ( ! key_exists( $id, $this->resolved ) ) {
-			$this->resolved[ $id ] = $this->make( $id );
+	public function get( $abstract ) {
+		if ( ! key_exists( $abstract, $this->resolved ) ) {
+			$this->resolved[ $abstract ] = $this->make( $abstract );
 		}
 
-		return $this->resolved[ $id ];
+		return $this->resolved[ $abstract ];
 	}
 
 	/**
-	 * Determine whether or not an entry for the given identifier exists in the container.
+	 * Determine whether or not an entry for the given abstract exists in the container.
 	 *
-	 * Please note that just because an entry exists for an identifier does not mean that dependency
-	 * can be built without errors. However, a truthy response from has() should guarantee that this
-	 * dependency will not produce a NotFoundException.
+	 * Please note that just because an entry exists for an abstract does not mean that dependency
+	 * can be built without errors. However, a truthy response from `has()` should guarantee that this
+	 * dependency will not produce a `NotFoundException`.
 	 *
-	 * @param string $id The identifier to look for.
+	 * @param string $abstract The abstract to look for.
 	 *
 	 * @return bool True if the container knows how to resolve the given identifier, false otherwise.
 	 */
-	public function has( $id ) {
+	public function has( $abstract ) {
 		$config = $this->config();
 
-		return key_exists( $id, $config );
+		return key_exists( $abstract, $config );
 	}
 
 	/**
-	 * Resolve the given identifier through the container and return it without caching.
+	 * Resolve the given abstract through the container and return it without caching.
 	 *
 	 * Unlike get(), a new, uncached instance will be created upon each call.
 	 *
-	 * @throws NotFoundException  If no entry was found for this identifier.
+	 * @throws NotFoundException  If no entry was found for this abstract.
 	 * @throws ContainerException Error while retrieving the entry.
 	 *
-	 * @param string $id The dependency's identifier.
+	 * @param string $id The dependency's abstract identifier.
 	 *
 	 * @return mixed The resolved dependency.
 	 */
-	public function make( $id ) {
+	public function make( $abstract ) {
 		$config = $this->config();
 
-		if ( ! key_exists( $id, $config ) ) {
-			throw new NotFoundException( sprintf( 'No container definition could be found for "%s".', $id ) );
+		if ( ! key_exists( $abstract, $config ) ) {
+			throw new NotFoundException(
+				sprintf( 'No container definition could be found for "%s".', $abstract )
+			);
 		}
 
 		try {
-			if ( null === $config[ $id ] ) {
-				return new $id();
+			if ( null === $config[ $abstract ] ) {
+				return new $abstract();
 			}
 
-			$resolved = $config[ $id ]( $this );
+			$resolved = $config[ $abstract ]( $this );
 		} catch ( \Exception $e ) {
 			throw new ContainerException(
-				sprintf( 'An error occured building "%s": %s', $id, $e->getMessage() ),
+				sprintf( 'An error occured building "%s": %s', $abstract, $e->getMessage() ),
 				$e->getCode(),
 				$e
 			);
@@ -127,14 +129,14 @@ abstract class Container implements ContainerInterface {
 	}
 
 	/**
-	 * Check whether or not the given identifier has already been resolved.
+	 * Check whether or not the given abstract has already been resolved.
 	 *
-	 * @param string $id The dependency's identifier.
+	 * @param string $abstract The dependency's abstract identifier.
 	 *
 	 * @return bool True if the dependency exists in cache, false otherwise.
 	 */
-	public function resolved( $id ) {
-		return key_exists( $id, $this->resolved );
+	public function resolved( $abstract ) {
+		return key_exists( $abstract, $this->resolved );
 	}
 
 	/**
