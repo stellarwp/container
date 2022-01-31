@@ -187,9 +187,16 @@ abstract class Container implements ContainerInterface {
 	 * Note that this Singleton usage is totally optional: the class constructor can still be used
 	 * normally should you need multiple instances of the container.
 	 *
+	 * @param ?Container A concrete instance of the container, used to seed this and future calls
+	 *                   to the instance() method. Default is empty (create and cache a new instance).
+	 *
 	 * @return self
 	 */
-	public static function instance() {
+	public static function instance( ?Container $instance = null ) {
+		if ( null !== $instance ) {
+			self::$instance = $instance;
+		}
+
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = self::build_singleton();
 		}

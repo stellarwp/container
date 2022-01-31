@@ -354,6 +354,30 @@ class ContainerTest extends TestCase {
 
 	/**
 	 * @test
+	 * @testdox Calling instance() with a concrete instance should set the Singleton value
+	 */
+	public function calling_instance_with_a_concrete_instance_should_set_the_Singleton_value() {
+		$container = new Concrete();
+		$instance  = Concrete::instance( $container );
+
+		$this->assertSame( $container, $instance );
+		$this->assertSame( $container, Concrete::instance(), 'Subsequent calls should use $container.' );
+	}
+
+	/**
+	 * @test
+	 * @testdox Calling instance() with a concrete instance should replace the current Singleton
+	 */
+	public function calling_instance_with_a_concrete_instance_should_replace_the_current_Singleton() {
+		$container = new Concrete();
+		$instance  = Concrete::instance();
+
+		$this->assertNotSame( $instance, Container::instance( $container ) );
+		$this->assertSame( $container, Container::instance() );
+	}
+
+	/**
+	 * @test
 	 * @testdox instance() should throw an excpetion if it cannot safely call `new static()`
 	 */
 	public function instance_should_throw_an_exception_if_it_cannot_safely_call_new_static() {
