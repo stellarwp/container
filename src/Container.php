@@ -33,7 +33,7 @@ abstract class Container implements ContainerInterface {
 	/**
 	 * The cached, Singleton instance of the container.
 	 *
-	 * @var self
+	 * @var ?self
 	 */
 	protected static $instance;
 
@@ -43,7 +43,7 @@ abstract class Container implements ContainerInterface {
 	 * When an abstract is requested through the container, the container will find the given
 	 * dependency in this array, execute the callable, and return the result.
 	 *
-	 * @return Array<string,callable> A mapping of abstracts to callables.
+	 * @return Array<string,callable|null> A mapping of abstracts to callables.
 	 */
 	abstract public function config();
 
@@ -124,7 +124,7 @@ abstract class Container implements ContainerInterface {
 	 * @throws NotFoundException  If no entry was found for this abstract.
 	 * @throws ContainerException Error while retrieving the entry.
 	 *
-	 * @param string $id The dependency's abstract identifier.
+	 * @param string $abstract The dependency's abstract identifier.
 	 *
 	 * @return mixed The resolved dependency.
 	 */
@@ -190,8 +190,8 @@ abstract class Container implements ContainerInterface {
 	 * @return self
 	 */
 	public static function instance() {
-		if (! isset( self::$instance ) ) {
-			self::$instance = new static();
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = self::build_singleton();
 		}
 
 		return self::$instance;
@@ -199,8 +199,36 @@ abstract class Container implements ContainerInterface {
 
 	/**
 	 * Reset the current Singleton instance.
+	 *
+	 * @return void
 	 */
 	public static function reset() {
 		self::$instance = null;
+	}
+
+	/**
+	 * Build a new Singleton instance.
+	 *
+	 * If your Container instance requires constructor arguments, you may override this method to
+	 * avoid having to overwrite self::instance().
+	 *
+	 * @throws ContainerException If the container cannot be constructed.
+	 *
+	 * @return Container The container instance.
+	 */
+	protected static function build_singleton() {
+		$constructor = ( new \ReflectionClass( static::class ) )->getConstructor();
+		$required    = $constructor ? $constructor->getNumberOfRequiredParameters() : 0;
+
+		if ( 0 < $required ) {
+			throw new ContainerException( sprintf(
+				'%1$s::__construct() has %2$d required argument(s), so %1$s::build_singleton() must be overridden.',
+				static::class,
+				$required
+			) );
+		}
+
+		// @phpstan-ignore-next-line As we're checking for possible invalid use of `new static()`.
+		return new static();
 	}
 }

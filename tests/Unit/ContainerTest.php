@@ -6,6 +6,7 @@ use StellarWP\Container\Container;
 use StellarWP\Container\Exceptions\ContainerException;
 use StellarWP\Container\Exceptions\NotFoundException;
 use Tests\Stubs\Concrete;
+use Tests\Stubs\ConcreteWithConstructorArgs;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -349,6 +350,15 @@ class ContainerTest extends TestCase {
 		$instance = Concrete::instance();
 
 		$this->assertSame( $instance, Concrete::instance(), 'The same instance should have been returned.' );
+	}
+
+	/**
+	 * @test
+	 * @testdox instance() should throw an excpetion if it cannot safely call `new static()`
+	 */
+	public function instance_should_throw_an_exception_if_it_cannot_safely_call_new_static() {
+		$this->expectException( ContainerException::class );
+		ConcreteWithConstructorArgs::instance();
 	}
 
 	/**
