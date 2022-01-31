@@ -196,4 +196,11 @@ abstract class Container implements ContainerInterface {
 
 		return self::$instance;
 	}
+
+	/**
+	 * Reset the current Singleton instance.
+	 */
+	public static function reset() {
+		self::$instance = null;
+	}
 }

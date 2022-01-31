@@ -10,16 +10,19 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * @testdox The StellarWP\Container\Container class
+ *
  * @covers StellarWP\Container\Container
  */
 class ContainerTest extends TestCase {
 
 	/**
-	 * The mocked, concrete container instance.
+	 * Clear the Singleton instance between tests.
 	 *
-	 * @var \PHPUnit\Framework\MockObject\MockObject&Container
+	 * @before
 	 */
-	protected $container;
+	public function resetSingleton() {
+		Concrete::reset();
+	}
 
 	/**
 	 * @testdox
@@ -356,6 +359,29 @@ class ContainerTest extends TestCase {
 		$instance = Concrete::instance();
 
 		$this->assertNotSame( $instance, new Concrete() );
+	}
+
+	/**
+	 * @test
+	 * @testdox reset() should clear the Singleton instance
+	 */
+	public function reset_should_clear_the_Singleton_instance() {
+		$instance = Concrete::instance();
+		Concrete::reset();
+
+		$this->assertNotSame( $instance, Concrete::instance() );
+	}
+
+	/**
+	 * @test
+	 * @testdox reset() should just return if there is no Singleton instance
+	 */
+	public function reset_should_just_return_if_there_is_no_Singleton_instance() {
+		$prop = new \ReflectionProperty( Concrete::class, 'instance' );
+		$prop->setAccessible( true );
+		$this->assertNull( $prop->getValue() );
+
+		Concrete::reset();
 	}
 
 	/**
