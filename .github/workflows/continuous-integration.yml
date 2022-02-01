@@ -1,0 +1,121 @@
+# This is the main Continuous Integration (CI) pipeline for the the stellarwp/container package.
+#
+# Any time code is pushed to one of the main branches or a PR is opened, this pipeline should be
+# run to ensure everything still works as designed and meets our coding standards.
+name: CI Pipeline
+
+# Execute on pushes to develop or main, as well as all PRs.
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+
+jobs:
+
+  # Execute all PHPUnit tests.
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Run on all versions of PHP supported by WordPress.
+        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, intl
+          coverage: none
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-phpunit-${{ hashFiles('**/composer.lock') }}-${{ matrix.php-versions }}
+          restore-keys: ${{ runner.os }}-phpunit-
+
+      - name: Remove platform config from composer.json
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer config --unset platform.php
+
+      - name: Remove unneeded Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: |
+          composer remove --dev --no-progress --no-update \
+            dealerdirect/phpcodesniffer-composer-installer \
+            friendsofphp/php-cs-fixer \
+            league/climate \
+            phpcompatibility/phpcompatibility-wp \
+            wp-coding-standards/wpcs \
+            szepeviktor/phpstan-wordpress
+
+      - name: Refresh Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer update --with-all-dependencies
+
+      - name: Run PHPUnit
+        run: composer test:unit
+
+  # Check coding standards (PHP_CodeSniffer, PHP-CS-Fixer)
+  coding-standards:
+    name: Coding standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: mbstring
+          coverage: none
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress
+
+      - name: Check coding standards
+        run: composer test:standards
+
+  # Static Code Analysis (PHPStan)
+  static-code-analysis:
+    name: Static code analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: mbstring, intl
+          coverage: none
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPStan
+        run: composer test:analysis

@@ -151,9 +151,10 @@ class ContainerTest extends TestCase {
 	 */
 	public function get_should_retrieve_the_given_abstract() {
 		$container = new Concrete();
+		$callable  = $container->config()[ Concrete::VALID_KEY ];
 
 		$this->assertEquals(
-			$container->config()[ Concrete::VALID_KEY ](),
+			$callable(),
 			$container->get( Concrete::VALID_KEY ),
 			'The return value should be that of the callback from the configuration.'
 		);
