@@ -1,6 +1,9 @@
 # External dependencies.
 /vendor/
 
+# Since this is a library (not a project), the composer.lock file doesn't have any real benefit.
+# Link: https://blog.martinhujer.cz/17-tips-for-using-composer-efficiently/#tip-%236%3A-put-%60composer.lock%60-into-%60.gitignore%60-in-libraries
+
 # Artifacts.
 /tests/coverage
 
