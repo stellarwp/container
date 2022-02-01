@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Coding standards for Nexcess Managed Apps">
-	<description>Coding standards for Nexcess Managed Apps Platform.</description>
+<ruleset name="Coding standards for StellarWP packages">
+	<description>Coding standards for StellarWP packages.</description>
 	<!-- How to scan? See ./docs/coding-standards.md for instructions. -->
 	<!-- Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
 	<!-- Annotated ruleset: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml -->
