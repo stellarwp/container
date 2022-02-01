@@ -1,5 +1,7 @@
 # StellarWP Dependency Injection (DI) Container
 
+[![CI Pipeline](https://github.com/stellarwp/container/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/stellarwp/container/actions/workflows/continuous-integration.yml)
+
 This library contains [a PSR-11-compatible Dependency Injection (DI) container](https://www.php-fig.org/psr/psr-11/) to aid in resolving dependencies as needed throughout various applications.
 
 ## What is Dependency Injection?
