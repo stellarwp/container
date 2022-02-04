@@ -54,8 +54,8 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
 		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
 
-        <!-- We're using PSR-4, not writing for WordPress core. -->
-        <exclude name="WordPress.Files.FileName" />
+		<!-- We're using PSR-4, not writing for WordPress core. -->
+		<exclude name="WordPress.Files.FileName" />
 
 		<!-- Function, variable, method naming. -->
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound" />
@@ -73,12 +73,25 @@
 		<exclude name="Squiz.Commenting.ClassComment.Missing" />
 		<exclude name="Squiz.Commenting.FileComment.Missing" />
 		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
-        <exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag" />
+		<exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag" />
 		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen" />
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
 		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 
 		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Stricter enforecement of general PHP best practices from PSR-2+12 -->
+	<rule ref="PSR12.Files.ImportStatement" />
+	<rule ref="PSR12.Classes.ClassInstantiation" />
+	<rule ref="PSR12.Traits.UseDeclaration" />
+	<rule ref="PSR2.Classes.PropertyDeclaration" />
+	<rule ref="Squiz.Scope.MethodScope"/>
+	<rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing"/>
+	<rule ref="PSR2.Methods.MethodDeclaration"/>
+	<rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+		<type>error</type>
+		<message>Method name "%s" must not be prefixed with an underscore to indicate visibility</message>
 	</rule>
 
 	<!-- Spacing before/after control structures. -->
@@ -92,7 +105,7 @@
 
 	<rule ref="Generic.Commenting.Todo.CommentFound">
 		<message>Please review this TODO comment: %s</message>
-  	    <severity>3</severity>
+		<severity>3</severity>
  	</rule>
 
 	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
@@ -110,8 +123,8 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-                <element value="stellarwp-container" />
-            </property>
+				<element value="stellarwp-container" />
+			</property>
 		</properties>
 	</rule>
 </ruleset>

@@ -92,7 +92,7 @@ abstract class Container implements ContainerInterface {
 	 * @return mixed The resolved dependency.
 	 */
 	public function get( $abstract ) {
-		if ( ! key_exists( $abstract, $this->resolved ) ) {
+		if ( ! array_key_exists( $abstract, $this->resolved ) ) {
 			$this->resolved[ $abstract ] = $this->make( $abstract );
 		}
 
@@ -113,7 +113,18 @@ abstract class Container implements ContainerInterface {
 	public function has( $abstract ) {
 		$config = $this->config();
 
-		return key_exists( $abstract, $config );
+		return array_key_exists( $abstract, $config );
+	}
+
+	/**
+	 * Check whether or not the given abstract has already been resolved.
+	 *
+	 * @param string $abstract The dependency's abstract identifier.
+	 *
+	 * @return bool True if the dependency exists in cache, false otherwise.
+	 */
+	public function hasResolved( $abstract ) {
+		return array_key_exists( $abstract, $this->resolved );
 	}
 
 	/**
@@ -131,7 +142,7 @@ abstract class Container implements ContainerInterface {
 	public function make( $abstract ) {
 		$config = array_merge( $this->config(), $this->extensions );
 
-		if ( ! key_exists( $abstract, $config ) ) {
+		if ( ! array_key_exists( $abstract, $config ) ) {
 			throw new NotFoundException(
 				sprintf( 'No container definition could be found for "%s".', $abstract )
 			);
@@ -152,17 +163,6 @@ abstract class Container implements ContainerInterface {
 		}
 
 		return $resolved;
-	}
-
-	/**
-	 * Check whether or not the given abstract has already been resolved.
-	 *
-	 * @param string $abstract The dependency's abstract identifier.
-	 *
-	 * @return bool True if the dependency exists in cache, false otherwise.
-	 */
-	public function resolved( $abstract ) {
-		return key_exists( $abstract, $this->resolved );
 	}
 
 	/**
@@ -193,13 +193,13 @@ abstract class Container implements ContainerInterface {
 	 *
 	 * @return self
 	 */
-	public static function instance( Container $instance = null ) {
+	public static function getInstance( Container $instance = null ) {
 		if ( null !== $instance ) {
 			self::$instance = $instance;
 		}
 
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = self::build_singleton();
+			self::$instance = self::buildSingleton();
 		}
 
 		return self::$instance;
@@ -216,19 +216,19 @@ abstract class Container implements ContainerInterface {
 	 * Build a new Singleton instance.
 	 *
 	 * If your Container instance requires constructor arguments, you may override this method to
-	 * avoid having to overwrite self::instance().
+	 * avoid having to overwrite self::getInstance().
 	 *
 	 * @throws ContainerException If the container cannot be constructed.
 	 *
 	 * @return Container The container instance.
 	 */
-	protected static function build_singleton() {
+	protected static function buildSingleton() {
 		$constructor = ( new \ReflectionClass( static::class ) )->getConstructor();
 		$required    = $constructor ? $constructor->getNumberOfRequiredParameters() : 0;
 
 		if ( 0 < $required ) {
 			throw new ContainerException( sprintf(
-				'%1$s::__construct() has %2$d required argument(s), so %1$s::build_singleton() must be overridden.',
+				'%1$s::__construct() has %2$d required argument(s), so %1$s::buildSingleton() must be overridden.',
 				static::class,
 				$required
 			) );

@@ -279,36 +279,36 @@ class ContainerTest extends TestCase {
 
 	/**
 	 * @test
-	 * @testdox resolved() should return true if the container has resolved the given abstract
+	 * @testdox hasResolved() should return true if the container has resolved the given abstract
 	 */
-	public function resolved_should_return_true_if_the_container_has_resolved_the_given_abstract() {
+	public function hasResolved_should_return_true_if_the_container_has_resolved_the_given_abstract() {
 		$container = new Concrete();
 		$container->get( Concrete::VALID_KEY );
 
 		$this->assertArrayHasKey( Concrete::VALID_KEY, $this->getResolvedCache( $container ) );
-		$this->assertTrue( $container->resolved( Concrete::VALID_KEY ) );
+		$this->assertTrue( $container->hasResolved( Concrete::VALID_KEY ) );
 	}
 
 	/**
 	 * @test
-	 * @testdox resolved() should return false if the container has not yet resolved the given abstract
+	 * @testdox hasResolved() should return false if the container has not yet resolved the given abstract
 	 */
-	public function resolved_should_return_false_if_the_container_has_not_resolved_the_given_abstract() {
+	public function hasResolved_should_return_false_if_the_container_has_not_resolved_the_given_abstract() {
 		$container = new Concrete();
 
 		$this->assertArrayNotHasKey( Concrete::VALID_KEY, $this->getResolvedCache( $container ) );
-		$this->assertFalse( $container->resolved( Concrete::VALID_KEY ) );
+		$this->assertFalse( $container->hasResolved( Concrete::VALID_KEY ) );
 	}
 
 	/**
 	 * @test
-	 * @testdox resolved() should return false if the given abstract is undefined
+	 * @testdox hasResolved() should return false if the given abstract is undefined
 	 */
-	public function resolved_should_return_false_if_the_given_abstract_is_undefined() {
+	public function hasResolved_should_return_false_if_the_given_abstract_is_undefined() {
 		$container = new Concrete();
 
 		$this->assertArrayNotHasKey( Concrete::INVALID_KEY, $this->getResolvedCache( $container ) );
-		$this->assertFalse( $container->resolved( Concrete::INVALID_KEY ) );
+		$this->assertFalse( $container->hasResolved( Concrete::INVALID_KEY ) );
 	}
 
 	/**
@@ -344,53 +344,53 @@ class ContainerTest extends TestCase {
 
 	/**
 	 * @test
-	 * @testdox instance() should return a Singleton instance
+	 * @testdox getInstance() should return a Singleton instance
 	 */
-	public function instance_should_return_a_Singleton_instance() {
-		$instance = Concrete::instance();
+	public function getInstance_should_return_a_Singleton_instance() {
+		$instance = Concrete::getInstance();
 
-		$this->assertSame( $instance, Concrete::instance(), 'The same instance should have been returned.' );
+		$this->assertSame( $instance, Concrete::getInstance(), 'The same instance should have been returned.' );
 	}
 
 	/**
 	 * @test
-	 * @testdox Calling instance() with a concrete instance should set the Singleton value
+	 * @testdox Calling getInstance() with a concrete instance should set the Singleton value
 	 */
-	public function calling_instance_with_a_concrete_instance_should_set_the_Singleton_value() {
+	public function calling_getInstance_with_a_concrete_instance_should_set_the_Singleton_value() {
 		$container = new Concrete();
-		$instance  = Concrete::instance( $container );
+		$instance  = Concrete::getInstance( $container );
 
 		$this->assertSame( $container, $instance );
-		$this->assertSame( $container, Concrete::instance(), 'Subsequent calls should use $container.' );
+		$this->assertSame( $container, Concrete::getInstance(), 'Subsequent calls should use $container.' );
 	}
 
 	/**
 	 * @test
-	 * @testdox Calling instance() with a concrete instance should replace the current Singleton
+	 * @testdox Calling getInstance() with a concrete instance should replace the current Singleton
 	 */
-	public function calling_instance_with_a_concrete_instance_should_replace_the_current_Singleton() {
+	public function calling_getInstance_with_a_concrete_instance_should_replace_the_current_Singleton() {
 		$container = new Concrete();
-		$instance  = Concrete::instance();
+		$instance  = Concrete::getInstance();
 
-		$this->assertNotSame( $instance, Container::instance( $container ) );
-		$this->assertSame( $container, Container::instance() );
+		$this->assertNotSame( $instance, Container::getInstance( $container ) );
+		$this->assertSame( $container, Container::getInstance() );
 	}
 
 	/**
 	 * @test
-	 * @testdox instance() should throw an excpetion if it cannot safely call `new static()`
+	 * @testdox getInstance() should throw an excpetion if it cannot safely call `new static()`
 	 */
-	public function instance_should_throw_an_exception_if_it_cannot_safely_call_new_static() {
+	public function getInstance_should_throw_an_exception_if_it_cannot_safely_call_new_static() {
 		$this->expectException( ContainerException::class );
-		ConcreteWithConstructorArgs::instance();
+		ConcreteWithConstructorArgs::getInstance();
 	}
 
 	/**
 	 * @test
-	 * @testdox instance() should not interfere with regular class instantiations
+	 * @testdox getInstance() should not interfere with regular class instantiations
 	 */
-	public function instance_should_not_interfere_with_regular_instantiations() {
-		$instance = Concrete::instance();
+	public function getInstance_should_not_interfere_with_regular_instantiations() {
+		$instance = Concrete::getInstance();
 
 		$this->assertNotSame( $instance, new Concrete() );
 	}
@@ -400,10 +400,10 @@ class ContainerTest extends TestCase {
 	 * @testdox reset() should clear the Singleton instance
 	 */
 	public function reset_should_clear_the_Singleton_instance() {
-		$instance = Concrete::instance();
+		$instance = Concrete::getInstance();
 		Concrete::reset();
 
-		$this->assertNotSame( $instance, Concrete::instance() );
+		$this->assertNotSame( $instance, Concrete::getInstance() );
 	}
 
 	/**
