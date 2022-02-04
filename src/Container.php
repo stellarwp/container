@@ -14,6 +14,8 @@ use StellarWP\Container\Exceptions\NotFoundException;
 
 /**
  * A PSR-11 dependency injection container class.
+ *
+ * @template T
  */
 abstract class Container implements ContainerInterface
 {
@@ -27,7 +29,7 @@ abstract class Container implements ContainerInterface
     /**
      * A cache of all resolved dependencies.
      *
-     * @var Array<string,mixed> The resolved dependency, keyed by its abstract.
+     * @var Array<class-string<T>,T> The resolved dependency, keyed by its abstract.
      */
     protected $resolved = [];
 
@@ -87,12 +89,12 @@ abstract class Container implements ContainerInterface
      *
      * Results will be cached, enabling subsequent results to return the same instance.
      *
-     * @param string $abstract The dependency's abstract identifier.
+     * @param class-string<T> $abstract The dependency's abstract identifier.
      *
      * @throws NotFoundException  If no entry was found for this abstract.
      * @throws ContainerException Error while retrieving the entry.
      *
-     * @return mixed The resolved dependency.
+     * @return T The resolved dependency.
      */
     public function get($abstract)
     {
@@ -138,12 +140,12 @@ abstract class Container implements ContainerInterface
      *
      * Unlike get(), a new, uncached instance will be created upon each call.
      *
-     * @param string $abstract The dependency's abstract identifier.
+     * @param class-string<T> $abstract The dependency's abstract identifier.
      *
      * @throws NotFoundException  If no entry was found for this abstract.
      * @throws ContainerException Error while retrieving the entry.
      *
-     * @return mixed The resolved dependency.
+     * @return T The resolved dependency.
      */
     public function make($abstract)
     {
