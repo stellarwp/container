@@ -97,28 +97,22 @@ Reports will be generated in HTML form within [`tests/coverage/`](../tests/cover
 
 ## Coding standards
 
-As this is WordPress-oriented code, we're _mostly_ adhering to [the WordPress coding standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). These are enforced automatically as part of the Continuous Integration (CI) pipeline via [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
+Despite this being WordPress-oriented code, this project uses [the PSR-12 coding standard](https://www.php-fig.org/psr/psr-12/), which has been adopted by the larger PHP community. We then supplement this with select WordPress best practices (verifying nonce usage, late-escaping, sanitization of user input, etc.).
 
-Notable exceptions to the WordPress coding standards include:
+One notable exception to PSR-12 is in our test classes, where test methods should use snake_case and the `@test` annotation:
 
-* Class names use PascalCase, and their methods and properties use camelCase
-  * Test methods are the only exception here, as snake_case is generally more readable, especially when paired with the `@test` annotation:
-    ```php
-    # Discouraged: camelCase with "test" prefix:
-    public function testItDoesTheThing() { /* ... */ }
+```php
+# Discouraged: camelCase with "test" prefix:
+public function testItDoesTheThing() { /* ... */ }
 
-    # Preferred: snake_case with @test annotation:
-    /**
-     * @test
-     */
-    public function it_does_the_thing() { /* ... */ }
-    ```
-* Class filenames are compliant with [PSR-4 autoloading](https://www.php-fig.org/psr/psr-4/)
-* [PHP's "short-array" syntax](https://www.php.net/manual/en/language.types.array.php#language.types.array.syntax) is required
+# Preferred: snake_case with @test annotation:
+/**
+ * @test
+ */
+public function it_does_the_thing() { /* ... */ }
+```
 
-A full list of exclusions is available in the project's [PHP_CodeSniffer](../phpcs.xml.dist) and [PHP-CS-Fixer](../.php-cs-fixer.dist.php) configurations files.
-
-You may run coding standards checks at any time with the following command:
+Our coding standards are enforced automatically as part of the Continuous Integration (CI) pipeline via [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) and [PHP-CS-Fixer](https://cs.symfony.com/). You may also run these coding standards checks at any time with the following command:
 
 ```sh
 $ composer test:standards

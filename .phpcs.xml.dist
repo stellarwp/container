@@ -35,37 +35,17 @@
 	<!-- Rules             -->
 	<!-- - - - - - - - - - -->
 
-	<!-- No PHP syntax errors. -->
-	<rule ref="Generic.PHP.Syntax"/>
+	<!-- Start with PSR-12 as a base. -->
+	<rule ref="PSR12"/>
+
+	<!-- Import select WordPress rules. -->
+	<rule ref="WordPress.PHP"/>
+	<rule ref="WordPress.Security"/>
+	<rule ref="WordPress.WP"/>
 
 	<!-- PHPCompatibilityWP -->
 	<!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
-	<rule ref="PHPCompatibilityWP" />
-
-	<!-- WordPress Coding Standards -->
-	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
-	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
-	<rule ref="WordPress-Extra">
-		<!-- Short array syntax is actually *preferred*. -->
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
-
-		<!-- Prevent closures from looking really bad. -->
-		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
-		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
-		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
-
-		<!-- We're using PSR-4, not writing for WordPress core. -->
-		<exclude name="WordPress.Files.FileName" />
-
-		<!-- Function, variable, method naming. -->
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound" />
-		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
-		<exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase" />
-		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
-
-		<!-- Short ternaries are fine. -->
-		<exclude name="WordPress.PHP.DisallowShortTernary.Found" />
-	</rule>
+	<rule ref="PHPCompatibilityWP"/>
 
 	<!-- WordPress Docs Coding Standards -->
 	<rule ref="WordPress-Docs">
@@ -81,41 +61,18 @@
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 
-	<!-- Stricter enforecement of general PHP best practices from PSR-2+12 -->
-	<rule ref="PSR12.Files.ImportStatement" />
-	<rule ref="PSR12.Classes.ClassInstantiation" />
-	<rule ref="PSR12.Traits.UseDeclaration" />
-	<rule ref="PSR2.Classes.PropertyDeclaration" />
-	<rule ref="Squiz.Scope.MethodScope"/>
-	<rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing"/>
-	<rule ref="PSR2.Methods.MethodDeclaration"/>
-	<rule ref="PSR2.Methods.MethodDeclaration.Underscore">
-		<type>error</type>
-		<message>Method name "%s" must not be prefixed with an underscore to indicate visibility</message>
+	<!-- Permit snake_case method names in test classes. -->
+	<rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
-
-	<!-- Spacing before/after control structures. -->
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing" />
 
 	<!-- Disallow long array syntax. -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax" />
-
-	<!-- Namespacing required for classes. -->
-	<rule ref="PSR1.Classes.ClassDeclaration" />
 
 	<rule ref="Generic.Commenting.Todo.CommentFound">
 		<message>Please review this TODO comment: %s</message>
 		<severity>3</severity>
  	</rule>
-
-	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
-		<type>warning</type>
-	</rule>
-
-	<!-- Tests may use whatever functions needed. -->
-	<rule ref="WordPress.WP.AlternativeFunctions">
-		<exclude-pattern>tests/*</exclude-pattern>
-	</rule>
 
 	<!-- Translation & localization -->
 
