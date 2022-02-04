@@ -1,23 +1,11 @@
 <?php
 
+$config = new PhpCsFixer\Config();
 $finder = PhpCsFixer\Finder::create()
-    ->exclude([
-        'bin',
-        'bootstrap',
-        'node_modules',
-        'storage',
-        'vendor',
-    ])
-    ->notPath([
-        '_ide_helper_models.php',
-        '_ide_helper.php',
-        '.phpstorm.meta.php',
-        'server.php',
-    ])
-    ->notPath('public/index.php')
-    ->in(__DIR__);
+	->in('src')
+    ->in('tests/Unit');
 
-return (new PhpCsFixer\Config())
+return $config->setFinder($finder)
     ->setRules([
         '@PSR12' => true,
         'align_multiline_comment' => true,
@@ -77,7 +65,6 @@ return (new PhpCsFixer\Config())
         'whitespace_after_comma_in_array' => true,
         'yoda_style' => true,
     ])
+    ->setIndent( "\t" )
     ->setRiskyAllowed(true)
-    ->setHideProgress(false)
-    ->setFinder($finder);
-
+    ->setHideProgress(false);
