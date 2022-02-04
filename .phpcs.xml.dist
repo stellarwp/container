@@ -1,87 +1,58 @@
 <?xml version="1.0"?>
 <ruleset name="Coding standards for StellarWP packages">
-	<description>Coding standards for StellarWP packages.</description>
-	<!-- How to scan? See ./docs/coding-standards.md for instructions. -->
-	<!-- Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
-	<!-- Annotated ruleset: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml -->
+    <!--
+        Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
+        Annotated ruleset: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+    -->
 
-	<!-- What to scan: -->
-	<file>./src</file>
-	<file>./tests</file>
+    <!-- What to scan: -->
+    <file>./src</file>
+    <file>./tests</file>
 
-	<!-- What to ignore: -->
-	<exclude-pattern>./tests/coverage</exclude-pattern>
+    <!-- What to ignore: -->
+    <exclude-pattern>./tests/coverage</exclude-pattern>
 
-	<!-- - - - - - - - - - -->
-	<!-- Configuration     -->
-	<!-- - - - - - - - - - -->
+    <!-- Show progresss & use colors. -->
+    <arg value="sp"/>
+    <arg name="colors"/>
 
-	<!-- Show progresss & use colors. -->
-	<arg value="sp"/>
-	<arg name="colors"/>
+    <!-- Enables parallel processing when available for faster results. -->
+    <arg name="parallel" value="8"/>
 
-	<!-- Enables parallel processing when available for faster results. -->
-	<arg name="parallel" value="8"/>
+    <!-- Strip the file paths down to the relevant bit and only apply to .php files. -->
+    <arg name="basepath" value="./"/>
+    <arg name="extensions" value="php"/>
 
-	<!-- Strip the file paths down to the relevant bit and only apply to .php files. -->
-	<arg name="basepath" value="./"/>
-	<arg name="extensions" value="php"/>
+    <!--
+        Set range of supported PHP versions.
 
-	<!-- Minimum versions required. -->
-	<config name="testVersion" value="5.6-"/>
-	<config name="minimum_supported_wp_version" value="5.8"/>
+        It's recommended that you leave off the maximum version in most cases,
+        e.g. "5.6-" means "We support PHP 5.6 or newer".
 
-	<!-- - - - - - - - - - -->
-	<!-- Rules             -->
-	<!-- - - - - - - - - - -->
+        Reference: https://github.com/PHPCompatibility/PHPCompatibility#sniffing-your-code-for-compatibility-with-specific-php-versions
+     -->
+    <config name="testVersion" value="5.6-"/>
 
-	<!-- Start with PSR-12 as a base. -->
-	<rule ref="PSR12"/>
+    <!--
+        Set the minimum supported WordPress version.
 
-	<!-- Import select WordPress rules. -->
-	<rule ref="WordPress.PHP"/>
-	<rule ref="WordPress.Security"/>
-	<rule ref="WordPress.WP"/>
+        Reference: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#minimum-wp-version-to-check-for-usage-of-deprecated-functions-classes-and-function-parameters
+     -->
+    <config name="minimum_supported_wp_version" value="5.8"/>
 
-	<!-- PHPCompatibilityWP -->
-	<!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
-	<rule ref="PHPCompatibilityWP"/>
+    <!-- Include the StellarWP standards. -->
+    <rule ref="StellarWP"/>
 
-	<!-- WordPress Docs Coding Standards -->
-	<rule ref="WordPress-Docs">
-		<exclude name="Generic.Commenting.DocComment.MissingShort" />
-		<exclude name="Squiz.Commenting.ClassComment.Missing" />
-		<exclude name="Squiz.Commenting.FileComment.Missing" />
-		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
-		<exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag" />
-		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen" />
-		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
-		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
+    <!--
+        Define the WordPress i18n text-domain.
 
-		<exclude-pattern>tests/*</exclude-pattern>
-	</rule>
-
-	<!-- Permit snake_case method names in test classes. -->
-	<rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
-		<exclude-pattern>tests/*</exclude-pattern>
-	</rule>
-
-	<!-- Disallow long array syntax. -->
-	<rule ref="Generic.Arrays.DisallowLongArraySyntax" />
-
-	<rule ref="Generic.Commenting.Todo.CommentFound">
-		<message>Please review this TODO comment: %s</message>
-		<severity>3</severity>
- 	</rule>
-
-	<!-- Translation & localization -->
-
-	<!-- Rules for localization text-domain. -->
-	<rule ref="WordPress.WP.I18n">
-		<properties>
-			<property name="text_domain" type="array">
-				<element value="stellarwp-container" />
-			</property>
-		</properties>
-	</rule>
+        Reference: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#internationalization-setting-your-text-domain
+    -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="stellarwp"/>
+            </property>
+        </properties>
+    </rule>
 </ruleset>
