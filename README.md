@@ -208,12 +208,12 @@ If the container is asked for a dependency for which it doesn't have a definitio
 
 ### Using the container as a Singleton
 
-If you need to be able to access the container from within dependencies (not uncommon when introducing a DI container into an existing codebase), you may use the static `Container::instance()` to return a Singleton version of the container (meaning each call to `Container::instance()` will return the same instance):
+If you need to be able to access the container from within dependencies (not uncommon when introducing a DI container into an existing codebase), you may use the static `Container::getInstance()` to return a Singleton version of the container (meaning each call to `Container::getInstance()` will return the same instance):
 
 ```php
 use Acme\SomePlugin\Container;
 
-Container::instance()->get( SomeAbstract::class );
+Container::getInstance()->get( SomeAbstract::class );
 ```
 
 However, this could result in two separate container instances: the Singleton and the instance created via `new Container()`:
@@ -224,13 +224,13 @@ use Acme\SomePlugin\Container;
 $container = new Container();
 
 // Elsewhere.
-$singleton = Container::instance();
+$singleton = Container::getInstance();
 
 var_dump( $singleton === $container );
 # => bool(false)
 ```
 
-To reduce this duplication, the `instance()` method accepts an optional `$instance` argument that overrides the container's internal `$instance` property:
+To reduce this duplication, the `getInstance()` method accepts an optional `$instance` argument that overrides the container's internal `$instance` property:
 
 ```php
 use Acme\SomePlugin\Container;
@@ -238,7 +238,7 @@ use Acme\SomePlugin\Container;
 $container = new Container();
 
 // Elsewhere.
-$singleton = Container::instance( $container );
+$singleton = Container::getInstance( $container );
 
 var_dump( $singleton === $container );
 # => bool(true)

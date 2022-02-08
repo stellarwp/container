@@ -97,12 +97,23 @@ Reports will be generated in HTML form within [`tests/coverage/`](../tests/cover
 
 ## Coding standards
 
-As this is WordPress-oriented code, we're adhering to [the WordPress coding standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). These are enforced automatically as part of the Continuous Integration (CI) pipeline via [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
+Despite this being WordPress-oriented code, this project uses [the PSR-12 coding standard](https://www.php-fig.org/psr/psr-12/), which has been adopted by the larger PHP community. We then supplement this with select WordPress best practices (verifying nonce usage, late-escaping, sanitization of user input, etc.).
 
-You may also run coding standards checks at any time with the following command:
+One notable exception to PSR-12 is in our test classes, where test methods should use snake_case and the `@test` annotation:
+
+```php
+# Discouraged: camelCase with "test" prefix:
+public function testItDoesTheThing() { /* ... */ }
+
+# Preferred: snake_case with @test annotation:
+/**
+ * @test
+ */
+public function it_does_the_thing() { /* ... */ }
+```
+
+Our coding standards are enforced automatically as part of the Continuous Integration (CI) pipeline via [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) and [PHP-CS-Fixer](https://cs.symfony.com/). You may also run these coding standards checks at any time with the following command:
 
 ```sh
 $ composer test:standards
 ```
-
-However, we also utilize [PSR-4 autoloading](https://www.php-fig.org/psr/psr-4/), so we do **not** follow WordPress conventions for filenames (e.g. `class-container.php`).

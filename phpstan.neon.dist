@@ -28,7 +28,3 @@ parameters:
 	checkTooWideReturnTypesInProtectedAndPublicMethods: true
 	checkUninitializedProperties: true
 	checkMissingIterableValueType: true
-
-	ignoreErrors:
-		# WordPress coding standards dictate that we *not* use @return void
-		- '#Method .+ has no return type specified#'

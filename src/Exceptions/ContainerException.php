@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Exception thrown when a general error occurs within the container.
  *
@@ -9,5 +10,6 @@ namespace StellarWP\Container\Exceptions;
 
 use Psr\Container\ContainerExceptionInterface;
 
-class ContainerException extends \RuntimeException implements ContainerExceptionInterface {
+class ContainerException extends \RuntimeException implements ContainerExceptionInterface
+{
 }
