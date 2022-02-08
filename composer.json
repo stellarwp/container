@@ -15,8 +15,8 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../coding-standards"
+            "type": "vcs",
+            "url": "git@github.com:stellarwp/coding-standards.git"
         }
     ],
     "autoload": {
@@ -36,7 +36,7 @@
     },
     "require-dev": {
         "league/climate": "^3.8",
-        "stellarwp/coding-standards": "dev-initial-development",
+        "stellarwp/coding-standards": "dev-develop",
         "szepeviktor/phpstan-wordpress": "^1.0",
         "yoast/phpunit-polyfills": "^1.0"
     },
