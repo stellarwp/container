@@ -1,0 +1,27 @@
+# External dependencies.
+/vendor/
+
+# Since this is a library (not a project), the composer.lock file doesn't have any real benefit.
+# Link: https://blog.martinhujer.cz/17-tips-for-using-composer-efficiently/#tip-%236%3A-put-%60composer.lock%60-into-%60.gitignore%60-in-libraries
+
+# Artifacts.
+/tests/coverage
+
+# Local overrides.
+.php-cs-fixer.php
+phpcs.xml
+phpunit.xml
+
+# Cache files.
+.php_cs.cache
+.php-cs-fixer.cache
+.phpunit.result.cache
+
+# Archives and dumps.
+*.sql
+*.tar.gz
+*.zip
+
+# System files.
+.DS_Store
+Thumbs.db
