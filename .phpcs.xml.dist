@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="Coding standards for StellarWP packages">
+<ruleset name="Coding standards for stellarwp/container">
     <!--
         Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
         Annotated ruleset: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
@@ -23,36 +23,6 @@
     <arg name="basepath" value="./"/>
     <arg name="extensions" value="php"/>
 
-    <!--
-        Set range of supported PHP versions.
-
-        It's recommended that you leave off the maximum version in most cases,
-        e.g. "5.6-" means "We support PHP 5.6 or newer".
-
-        Reference: https://github.com/PHPCompatibility/PHPCompatibility#sniffing-your-code-for-compatibility-with-specific-php-versions
-     -->
-    <config name="testVersion" value="5.6-"/>
-
-    <!--
-        Set the minimum supported WordPress version.
-
-        Reference: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#minimum-wp-version-to-check-for-usage-of-deprecated-functions-classes-and-function-parameters
-     -->
-    <config name="minimum_supported_wp_version" value="5.8"/>
-
     <!-- Include the StellarWP standards. -->
     <rule ref="StellarWP"/>
-
-    <!--
-        Define the WordPress i18n text-domain.
-
-        Reference: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#internationalization-setting-your-text-domain
-    -->
-    <rule ref="WordPress.WP.I18n">
-        <properties>
-            <property name="text_domain" type="array">
-                <element value="stellarwp"/>
-            </property>
-        </properties>
-    </rule>
 </ruleset>
