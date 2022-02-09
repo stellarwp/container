@@ -32,20 +32,7 @@ jobs:
           extensions: mbstring, intl
           coverage: none
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-phpunit-${{ hashFiles('**/composer.lock') }}-${{ matrix.php-versions }}
-          restore-keys: ${{ runner.os }}-phpunit-
-
-      - name: Remove platform config from composer.json
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer config --unset platform.php
-
       - name: Remove unneeded Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
         run: |
           composer remove --dev --no-progress --no-update \
             dealerdirect/phpcodesniffer-composer-installer \
@@ -55,9 +42,7 @@ jobs:
             wp-coding-standards/wpcs \
             szepeviktor/phpstan-wordpress
 
-      - name: Refresh Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer update --with-all-dependencies
+      - uses: ramsey/composer-install@v2
 
       - name: Run PHPUnit
         run: composer test:unit
@@ -76,17 +61,7 @@ jobs:
           extensions: mbstring
           coverage: none
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer install --prefer-dist --no-progress
+      - uses: ramsey/composer-install@v2
 
       - name: Check coding standards
         run: composer test:standards
@@ -105,17 +80,7 @@ jobs:
           extensions: mbstring, intl
           coverage: none
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer install --prefer-dist --no-progress
+      - uses: ramsey/composer-install@v2
 
       - name: Run PHPStan
         run: composer test:analysis
