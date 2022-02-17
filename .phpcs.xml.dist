@@ -24,5 +24,8 @@
     <arg name="extensions" value="php"/>
 
     <!-- Include the StellarWP standards. -->
-    <rule ref="StellarWP"/>
+    <rule ref="StellarWP">
+        <!-- This can cause issues when re-throwing exceptions. -->
+        <exclude name="Squiz.Commenting.FunctionCommentThrowTag.WrongNumber" />
+    </rule>
 </ruleset>

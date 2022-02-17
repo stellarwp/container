@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use StellarWP\Container\Container;
 use StellarWP\Container\Exceptions\ContainerException;
 use StellarWP\Container\Exceptions\NotFoundException;
+use StellarWP\Container\Exceptions\RecursiveDependencyException;
 use Tests\Stubs\Concrete;
 use Tests\Stubs\ConcreteWithConstructorArgs;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
@@ -379,6 +380,19 @@ class ContainerTest extends TestCase
 
         $this->expectException(ContainerException::class);
         $container->make(Concrete::EXCEPTION_KEY);
+    }
+
+    /**
+     * @test
+     * @testdox make() should throw a RecursiveDependencyException if a recursive loop is detected
+     * @runInSeparateProcess
+     */
+    public function make_should_throw_a_RecursiveDependencyException_if_a_recursive_loop_is_detected()
+    {
+        $container = new Concrete();
+
+        $this->expectException(RecursiveDependencyException::class);
+        $container->make(Concrete::RECURSIVE_KEY);
     }
 
     /**

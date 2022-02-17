@@ -15,6 +15,7 @@ class Concrete extends Container
     const NESTED_GET_KEY  = 'nested-get-key';
     const NESTED_MAKE_KEY = 'nested-make-key';
     const NULL_KEY        = \DateTime::class;
+    const RECURSIVE_KEY   = 'recursion';
     const VALID_KEY       = 'some-key';
 
     /**
@@ -34,6 +35,9 @@ class Concrete extends Container
             },
             self::NULL_KEY      => null,
             self::ALIAS_KEY     => 'some-key',
+            self::RECURSIVE_KEY => function ($container) {
+                return $container->make(self::RECURSIVE_KEY);
+            },
             self::EXCEPTION_KEY => function () {
                 throw new \RuntimeException('Something went wrong');
             },
