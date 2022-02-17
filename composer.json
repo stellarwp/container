@@ -40,6 +40,9 @@
         "szepeviktor/phpstan-wordpress": "^1.0",
         "yoast/phpunit-polyfills": "^1.0"
     },
+    "provide": {
+        "psr/container-implementation": "^1.0.0"
+    },
     "scripts": {
         "test": [
             "@test:all"
