@@ -37,7 +37,7 @@ abstract class Container implements ContainerInterface
     /**
      * Extensions to the default container configuration.
      *
-     * @var Array<string,callable> A mapping of abstracts to callables.
+     * @var Array<string,callable|object|string|null> A mapping of abstracts to callables.
      */
     protected $extensions = [];
 
@@ -61,7 +61,7 @@ abstract class Container implements ContainerInterface
      * When an abstract is requested through the container, the container will find the given
      * dependency in this array, execute the callable, and return the result.
      *
-     * @return Array<string,callable|null> A mapping of abstracts to callables.
+     * @return Array<string,callable|object|string|null> A mapping of abstracts to callables.
      */
     abstract public function config();
 
@@ -71,18 +71,26 @@ abstract class Container implements ContainerInterface
      * This allows definitions to be dynamically added or updated, which is especially useful
      * during testing.
      *
-     * @param string   $abstract   The abstract to be added or replaced.
-     * @param callable $definition A callable to construct the concrete instance of the abstract.
-     *                             Like those in config(), each callable will recieve the current
-     *                             container instance.
+     * @param string          $abstract   The abstract to be added or replaced.
+     * @param callable|object $definition Either the resolved dependency object or a callable that
+     *                                    can be used to construct the concrete instance of the
+     *                                    abstract. Like those in config(), each callable will recieve
+     *                                    the current container instance.
      *
      * @return $this
      */
-    public function extend($abstract, callable $definition)
+    public function extend($abstract, $definition)
     {
         $this->extensions[$abstract] = $definition;
 
-        return $this->forget($abstract);
+        // If we have a resolved, concrete instance go ahead and prime the cache.
+        if (is_object($definition) && ! $definition instanceof \Closure) {
+            $this->resolved[$abstract] = $definition;
+        } else {
+            $this->forget($abstract);
+        }
+
+        return $this;
     }
 
     /**
@@ -192,9 +200,17 @@ abstract class Container implements ContainerInterface
             } elseif (is_string($config[$abstract]) && $this->has($config[$abstract])) {
                 $resolved = $this->make($config[$abstract]);
 
-            // Otherwise, attempt to execute the callable.
-            } else {
+            // If the definition is a non-closure object, simply return it.
+            } elseif (is_object($config[$abstract]) && ! $config[$abstract] instanceof \Closure) {
+                $resolved = $config[$abstract];
+
+            // If the definition is callable, execute it and return the result.
+            } elseif (is_callable($config[$abstract])) {
                 $resolved = $config[$abstract]($this);
+
+            // If all else fails, throw an exception.
+            } else {
+                throw new ContainerException(sprintf('Unhandled definition type (%s)', gettype($config[$abstract])));
             }
         } catch (\Exception $e) {
             if ($e instanceof RecursiveDependencyException) {

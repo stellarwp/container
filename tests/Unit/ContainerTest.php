@@ -59,11 +59,39 @@ class ContainerTest extends TestCase
         $instance  = new \stdClass();
         $container = new Concrete();
 
-        $container->extend(Concrete::INVALID_KEY, function () use ($instance) {
+        $container->extend(Concrete::UNDEFINED_KEY, function () use ($instance) {
             return $instance;
         });
 
-        $this->assertSame($instance, $container->get(Concrete::INVALID_KEY));
+        $this->assertSame($instance, $container->make(Concrete::UNDEFINED_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox extend() should be able to accept new instances directly
+     */
+    public function extend_should_be_able_to_accept_new_instances_directly()
+    {
+        $instance  = new \stdClass();
+        $container = new Concrete();
+
+        $container->extend(Concrete::UNDEFINED_KEY, $instance);
+
+        $this->assertSame($instance, $container->make(Concrete::UNDEFINED_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox extend() should prime the resolution cache if given a concrete instance
+     */
+    public function extend_Should_prime_the_resolution_cache_if_given_a_concrete_instance()
+    {
+        $instance  = new \stdClass();
+        $container = new Concrete();
+
+        $container->extend(Concrete::UNDEFINED_KEY, $instance);
+
+        $this->assertTrue($container->hasResolved(Concrete::UNDEFINED_KEY));
     }
 
     /**
@@ -96,14 +124,10 @@ class ContainerTest extends TestCase
         $instance1 = (object) [ uniqid() ];
         $instance2 = (object) [ uniqid() ];
 
-        $container->extend(Concrete::VALID_KEY, function () use ($instance1) {
-            return $instance1;
-        });
+        $container->extend(Concrete::VALID_KEY, $instance1);
         $this->assertSame($instance1, $container->get(Concrete::VALID_KEY));
 
-        $container->extend(Concrete::VALID_KEY, function () use ($instance2) {
-            return $instance2;
-        });
+        $container->extend(Concrete::VALID_KEY, $instance2);
         $this->assertSame($instance2, $container->get(Concrete::VALID_KEY));
     }
 
@@ -211,9 +235,7 @@ class ContainerTest extends TestCase
         $container = new Concrete();
         $instance = (object) [ uniqid() ];
 
-        $container->extend(Concrete::VALID_KEY, function () use ($instance) {
-            return $instance;
-        });
+        $container->extend(Concrete::VALID_KEY, $instance);
 
         $this->assertSame($instance, $container->get(Concrete::ALIAS_KEY));
         $this->assertTrue(
@@ -233,7 +255,7 @@ class ContainerTest extends TestCase
     public function get_should_throw_a_NotFoundException_if_the_given_entry_is_undefined()
     {
         $this->expectException(NotFoundException::class);
-        (new Concrete())->get(Concrete::INVALID_KEY);
+        (new Concrete())->get(Concrete::UNDEFINED_KEY);
     }
 
     /**
@@ -276,7 +298,7 @@ class ContainerTest extends TestCase
      */
     public function has_should_return_false_if_no_definition_for_the_abstract_exists()
     {
-        $this->assertFalse((new Concrete())->has(Concrete::INVALID_KEY));
+        $this->assertFalse((new Concrete())->has(Concrete::UNDEFINED_KEY));
     }
 
     /**
@@ -304,6 +326,20 @@ class ContainerTest extends TestCase
 
         $this->assertInstanceOf(Concrete::NULL_KEY, $container->make(Concrete::NULL_KEY));
         $this->assertFalse($container->hasResolved(Concrete::NULL_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox make() should return the provided resolved instance, when present
+     */
+    public function make_should_return_the_provided_resolved_instance_when_present()
+    {
+        $container = new Concrete();
+        $instance  = new \stdClass();
+
+        $container->extend(Concrete::INSTANCE_KEY, $instance);
+
+        $this->assertSame($instance, $container->make(Concrete::INSTANCE_KEY));
     }
 
     /**
@@ -367,7 +403,7 @@ class ContainerTest extends TestCase
     public function make_should_throw_a_NotFoundException_if_the_given_abstract_is_undefined()
     {
         $this->expectException(NotFoundException::class);
-        ( new Concrete() )->make(Concrete::INVALID_KEY);
+        ( new Concrete() )->make(Concrete::UNDEFINED_KEY);
     }
 
     /**
@@ -380,6 +416,18 @@ class ContainerTest extends TestCase
 
         $this->expectException(ContainerException::class);
         $container->make(Concrete::EXCEPTION_KEY);
+    }
+
+    /**
+     * @test
+     * @testdox make() should throw a ContainerException if unable to process a definition
+     */
+    public function make_should_throw_a_ContainerException_if_unable_to_process_a_definition()
+    {
+        $container = new Concrete();
+
+        $this->expectException(ContainerException::class);
+        $container->make(Concrete::INVALID_KEY);
     }
 
     /**
@@ -428,8 +476,8 @@ class ContainerTest extends TestCase
     {
         $container = new Concrete();
 
-        $this->assertArrayNotHasKey(Concrete::INVALID_KEY, $this->getResolvedCache($container));
-        $this->assertFalse($container->hasResolved(Concrete::INVALID_KEY));
+        $this->assertArrayNotHasKey(Concrete::UNDEFINED_KEY, $this->getResolvedCache($container));
+        $this->assertFalse($container->hasResolved(Concrete::UNDEFINED_KEY));
     }
 
     /**
