@@ -13,7 +13,7 @@ parameters:
 
 	# Paths to be analyzed.
 	paths:
-		- %currentWorkingDirectory%/src/
+		- src
 
 	# Additional checks.
 	polluteScopeWithLoopInitialAssignments: true

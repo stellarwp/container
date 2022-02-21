@@ -27,7 +27,7 @@ abstract class Container implements ContainerInterface
     /**
      * A cache of all resolved dependencies.
      *
-     * @var Array<string|class-string<T>,mixed|T> The resolved dependency, keyed by its abstract.
+     * @var Array<string,object> The resolved dependency, keyed by its abstract.
      */
     protected $resolved = [];
 
@@ -59,11 +59,11 @@ abstract class Container implements ContainerInterface
      *                             Like those in config(), each callable will recieve the current
      *                             container instance.
      *
-     * @return self
+     * @return $this
      */
     public function extend($abstract, callable $definition)
     {
-        $this->extensions[ $abstract ] = $definition;
+        $this->extensions[$abstract] = $definition;
 
         return $this->forget($abstract);
     }
@@ -73,11 +73,11 @@ abstract class Container implements ContainerInterface
      *
      * @param string $abstract The abstract identifier to forget.
      *
-     * @return self
+     * @return $this
      */
     public function forget($abstract)
     {
-        unset($this->resolved[ $abstract ]);
+        unset($this->resolved[$abstract]);
 
         return $this;
     }
@@ -87,20 +87,21 @@ abstract class Container implements ContainerInterface
      *
      * Results will be cached, enabling subsequent results to return the same instance.
      *
-     * @param string|class-string<T> $abstract The dependency's abstract identifier.
+     * @param string $abstract The dependency's abstract identifier.
      *
      * @throws NotFoundException  If no entry was found for this abstract.
      * @throws ContainerException Error while retrieving the entry.
      *
-     * @return mixed|T The resolved dependency.
+     * @return object The resolved dependency.
      */
     public function get($abstract)
     {
         if (! array_key_exists($abstract, $this->resolved)) {
-            $this->resolved[ $abstract ] = $this->make($abstract);
+            $resolved = $this->make($abstract);
+            $this->resolved[$abstract] = $resolved;
         }
 
-        return $this->resolved[ $abstract ];
+        return $this->resolved[$abstract];
     }
 
     /**
@@ -138,12 +139,12 @@ abstract class Container implements ContainerInterface
      *
      * Unlike get(), a new, uncached instance will be created upon each call.
      *
-     * @param string|class-string<T> $abstract The dependency's abstract identifier.
+     * @param string $abstract The dependency's abstract identifier.
      *
      * @throws NotFoundException  If no entry was found for this abstract.
      * @throws ContainerException Error while retrieving the entry.
      *
-     * @return mixed|T The resolved dependency.
+     * @return object The resolved dependency.
      */
     public function make($abstract)
     {
@@ -156,11 +157,11 @@ abstract class Container implements ContainerInterface
         }
 
         try {
-            if (null === $config[ $abstract ]) {
+            if (null === $config[$abstract]) {
                 return new $abstract();
             }
 
-            $resolved = $config[ $abstract ]($this);
+            $resolved = $config[$abstract]($this);
         } catch (\Exception $e) {
             throw new ContainerException(
                 sprintf('An error occured building "%s": %s', $abstract, $e->getMessage()),
@@ -177,11 +178,11 @@ abstract class Container implements ContainerInterface
      *
      * @param string $abstract The abstract to restore.
      *
-     * @return self
+     * @return $this
      */
     public function restore($abstract)
     {
-        unset($this->extensions[ $abstract ]);
+        unset($this->extensions[$abstract]);
 
         return $this->forget($abstract);
     }
@@ -232,11 +233,11 @@ abstract class Container implements ContainerInterface
      *
      * @throws ContainerException If the container cannot be constructed.
      *
-     * @return Container
+     * @return static
      */
     protected static function buildSingleton()
     {
-        $constructor = ( new \ReflectionClass(static::class) )->getConstructor();
+        $constructor = (new \ReflectionClass(static::class))->getConstructor();
         $required    = $constructor ? $constructor->getNumberOfRequiredParameters() : 0;
 
         if (0 < $required) {

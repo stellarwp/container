@@ -160,6 +160,7 @@ class ContainerTest extends TestCase
     public function get_should_retrieve_the_given_abstract()
     {
         $container = new Concrete();
+        /** @var callable $callable */
         $callable  = $container->config()[ Concrete::VALID_KEY ];
 
         $this->assertEquals(
@@ -463,6 +464,6 @@ class ContainerTest extends TestCase
         $property = new \ReflectionProperty($container, 'resolved');
         $property->setAccessible(true);
 
-        return $property->getValue($container);
+        return (array) $property->getValue($container);
     }
 }
