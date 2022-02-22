@@ -420,6 +420,16 @@ public function saveUser_should_update_the_account_email()
 }
 ```
 
+You may also pass the resolved instance directly into the container with `extend()`:
+
+```diff
+   // Replace the default ServiceSdk instance with our mock.
+-  $this->container->extend(ServiceSdk::class, function () use ($service) {
+-    return $service;
+-  });
++  $this->container->extend(ServiceSdk::class, $service);
+```
+
 > #### ⏮  Restoring original definitions
 > If you need to restore the original definition for an abstract, you may remove its extension(s) using `$container->restore()`.
 

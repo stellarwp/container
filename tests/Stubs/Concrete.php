@@ -11,11 +11,13 @@ class Concrete extends Container
      */
     const ALIAS_KEY       = 'alias';
     const EXCEPTION_KEY   = 'exception';
+    const INSTANCE_KEY    = 'instance';
     const INVALID_KEY     = 'some-other-key';
     const NESTED_GET_KEY  = 'nested-get-key';
     const NESTED_MAKE_KEY = 'nested-make-key';
     const NULL_KEY        = \DateTime::class;
     const RECURSIVE_KEY   = 'recursion';
+    const UNDEFINED_KEY   = 'undefined';
     const VALID_KEY       = 'some-key';
 
     /**
@@ -41,7 +43,9 @@ class Concrete extends Container
             self::EXCEPTION_KEY => function () {
                 throw new \RuntimeException('Something went wrong');
             },
-            // self::INVALID_KEY should not be in this array.
+            self::INSTANCE_KEY  => new \stdClass(),
+            self::INVALID_KEY   => [],
+            // self::UNDEFINED_KEY should not be in this array.
         ];
     }
 }
