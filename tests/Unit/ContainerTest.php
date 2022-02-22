@@ -143,6 +143,25 @@ class ContainerTest extends TestCase
 
     /**
      * @test
+     * @testdox forget() should be able to remove multiple dependencies
+     */
+    public function forget_should_be_able_to_remove_multiple_dependencies()
+    {
+        $container = new Concrete();
+        $container->get(Concrete::VALID_KEY);
+        $container->get(Concrete::ALIAS_KEY);
+        $container->get(Concrete::NULL_KEY);
+
+        $container->forget(Concrete::VALID_KEY, Concrete::ALIAS_KEY);
+
+        $resolved = $this->getResolvedCache($container);
+        $this->assertArrayNotHasKey(Concrete::VALID_KEY, $resolved);
+        $this->assertArrayNotHasKey(Concrete::ALIAS_KEY, $resolved);
+        $this->assertArrayHasKey(Concrete::NULL_KEY, $resolved);
+    }
+
+    /**
+     * @test
      * @testdox forget() should simply return if the given entry does not exist in cache
      */
     public function forget_should_simply_return_if_the_given_entry_does_not_exist()
@@ -168,6 +187,7 @@ class ContainerTest extends TestCase
             $container->get(Concrete::VALID_KEY),
             'The return value should be that of the callback from the configuration.'
         );
+        $this->assertTrue($container->hasResolved(Concrete::VALID_KEY), 'The resolved abstract should be cached.');
     }
 
     /**
@@ -189,12 +209,49 @@ class ContainerTest extends TestCase
 
     /**
      * @test
+     * @testdox get() should recursively cache dependencies, even if they use make()
+     */
+    public function get_should_recursively_cache_dependencies_even_if_they_use_make()
+    {
+        $container = new Concrete();
+
+        $container->get(Concrete::NESTED_MAKE_KEY);
+        $this->assertTrue($container->hasResolved(Concrete::NESTED_MAKE_KEY));
+        $this->assertTrue($container->hasResolved(Concrete::VALID_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox get() should be able to recursively-resolve aliases through the container
+     */
+    public function get_should_be_able_to_recursively_resolve_aliases_through_the_container()
+    {
+        $container = new Concrete();
+        $instance = (object) [ uniqid() ];
+
+        $container->extend(Concrete::VALID_KEY, function () use ($instance) {
+            return $instance;
+        });
+
+        $this->assertSame($instance, $container->get(Concrete::ALIAS_KEY));
+        $this->assertTrue(
+            $container->hasResolved(Concrete::ALIAS_KEY),
+            'The resolved alias should be cached.'
+        );
+        $this->assertTrue(
+            $container->hasResolved(Concrete::VALID_KEY),
+            'The underlying resource should also be cached.'
+        );
+    }
+
+    /**
+     * @test
      * @testdox get() should throw a NotFoundException if the given entry is undefined
      */
     public function get_should_throw_a_NotFoundException_if_the_given_entry_is_undefined()
     {
         $this->expectException(NotFoundException::class);
-        ( new Concrete() )->get(Concrete::INVALID_KEY);
+        (new Concrete())->get(Concrete::INVALID_KEY);
     }
 
     /**
@@ -228,7 +285,7 @@ class ContainerTest extends TestCase
      */
     public function has_should_return_true_if_a_definition_for_the_abstract_exists()
     {
-        $this->assertTrue(( new Concrete() )->has(Concrete::VALID_KEY));
+        $this->assertTrue((new Concrete())->has(Concrete::VALID_KEY));
     }
 
     /**
@@ -237,7 +294,7 @@ class ContainerTest extends TestCase
      */
     public function has_should_return_false_if_no_definition_for_the_abstract_exists()
     {
-        $this->assertFalse(( new Concrete() )->has(Concrete::INVALID_KEY));
+        $this->assertFalse((new Concrete())->has(Concrete::INVALID_KEY));
     }
 
     /**
@@ -250,6 +307,7 @@ class ContainerTest extends TestCase
         $first     = $container->make(Concrete::VALID_KEY);
         $second    = $container->make(Concrete::VALID_KEY);
 
+        $this->assertFalse($container->hasResolved(Concrete::VALID_KEY), 'make() should not cache resolutions.');
         $this->assertEquals($first, $second, 'Expected two instances of the same class.');
         $this->assertNotSame($first, $second, 'Two separate instances should have been returned.');
     }
@@ -260,7 +318,50 @@ class ContainerTest extends TestCase
      */
     public function make_should_be_able_to_return_a_new_instance_of_an_abstract_with_a_null_callable()
     {
-        $this->assertInstanceOf(Concrete::NULL_KEY, ( new Concrete() )->make(Concrete::NULL_KEY));
+        $container = new Concrete();
+
+        $this->assertInstanceOf(Concrete::NULL_KEY, $container->make(Concrete::NULL_KEY));
+        $this->assertFalse($container->hasResolved(Concrete::NULL_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox make() should respect the use of get() within resolution callbacks
+     */
+    public function make_should_respect_the_use_of_get_within_resolution_callbacks()
+    {
+        $container = new Concrete();
+
+        $container->make(Concrete::NESTED_GET_KEY);
+        $this->assertFalse($container->hasResolved(Concrete::NESTED_GET_KEY));
+        $this->assertTrue(
+            $container->hasResolved(Concrete::VALID_KEY),
+            'The callback used get() to resolve Concrete::VALID_KEY, so it should be cached'
+        );
+    }
+
+    /**
+     * @test
+     * @testdox make() should be able to recursively-resolve aliases through the container
+     */
+    public function make_should_be_able_to_recursively_resolve_aliases_through_the_container()
+    {
+        $container = new Concrete();
+        $instance = (object) [ uniqid() ];
+
+        $container->extend(Concrete::VALID_KEY, function () use ($instance) {
+            return $instance;
+        });
+
+        $this->assertSame($instance, $container->make(Concrete::ALIAS_KEY));
+        $this->assertFalse(
+            $container->hasResolved(Concrete::ALIAS_KEY),
+            'The ALIAS_KEY resolution should not have been cached.'
+        );
+        $this->assertFalse(
+            $container->hasResolved(Concrete::VALID_KEY),
+            'The underlying VALID_KEY resolution should not have been cached.'
+        );
     }
 
     /**

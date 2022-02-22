@@ -18,6 +18,15 @@ use StellarWP\Container\Exceptions\NotFoundException;
 abstract class Container implements ContainerInterface
 {
     /**
+     * Whether or not resolutions should be cached.
+     *
+     * By default, this will be false but will be set to `true` when calling `get()`.
+     *
+     * @var bool True if resolutions should be cached, false otherwise.
+     */
+    protected $cacheResolutions = false;
+
+    /**
      * Extensions to the default container configuration.
      *
      * @var Array<string,callable> A mapping of abstracts to callables.
@@ -71,13 +80,15 @@ abstract class Container implements ContainerInterface
     /**
      * Remove the cached resolution for the given abstract.
      *
-     * @param string $abstract The abstract identifier to forget.
+     * @param string ...$abstracts The abstract identifier(s) to forget.
      *
      * @return $this
      */
-    public function forget($abstract)
+    public function forget(...$abstracts)
     {
-        unset($this->resolved[$abstract]);
+        foreach ($abstracts as $abstract) {
+            unset($this->resolved[$abstract]);
+        }
 
         return $this;
     }
@@ -97,8 +108,9 @@ abstract class Container implements ContainerInterface
     public function get($abstract)
     {
         if (! array_key_exists($abstract, $this->resolved)) {
-            $resolved = $this->make($abstract);
-            $this->resolved[$abstract] = $resolved;
+            $this->cacheResolutions = true;
+            $this->make($abstract);
+            $this->cacheResolutions = false;
         }
 
         return $this->resolved[$abstract];
@@ -157,17 +169,29 @@ abstract class Container implements ContainerInterface
         }
 
         try {
+            // If the definition is null, simply call `new $abstract()`.
             if (null === $config[$abstract]) {
-                return new $abstract();
-            }
+                $resolved = new $abstract();
 
-            $resolved = $config[$abstract]($this);
+            // If given a string that references a container definition, treat this as an alias.
+            } elseif (is_string($config[$abstract]) && $this->has($config[$abstract])) {
+                $resolved = $this->make($config[$abstract]);
+
+            // Otherwise, attempt to execute the callable.
+            } else {
+                $resolved = $config[$abstract]($this);
+            }
         } catch (\Exception $e) {
             throw new ContainerException(
                 sprintf('An error occured building "%s": %s', $abstract, $e->getMessage()),
                 $e->getCode(),
                 $e
             );
+        }
+
+        // If the cache is enabled, cache this resolution.
+        if ($this->cacheResolutions) {
+            $this->resolved[$abstract] = $resolved;
         }
 
         return $resolved;
@@ -200,7 +224,7 @@ abstract class Container implements ContainerInterface
      *                             calls to the instance() method. Default is empty (create and cache
      *                             a new instance).
      *
-     * @return Container
+     * @return self
      */
     public static function getInstance(Container $instance = null)
     {
