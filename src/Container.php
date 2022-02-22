@@ -32,7 +32,7 @@ abstract class Container implements ContainerInterface
      *
      * @var Array<string,bool>
      */
-    protected $currentlyResolving;
+    protected $currentlyResolving = [];
 
     /**
      * Extensions to the default container configuration.
