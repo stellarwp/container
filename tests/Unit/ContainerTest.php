@@ -143,6 +143,25 @@ class ContainerTest extends TestCase
 
     /**
      * @test
+     * @testdox forget() should be able to remove multiple dependencies
+     */
+    public function forget_should_be_able_to_remove_multiple_dependencies()
+    {
+        $container = new Concrete();
+        $container->get(Concrete::VALID_KEY);
+        $container->get(Concrete::ALIAS_KEY);
+        $container->get(Concrete::NULL_KEY);
+
+        $container->forget(Concrete::VALID_KEY, Concrete::ALIAS_KEY);
+
+        $resolved = $this->getResolvedCache($container);
+        $this->assertArrayNotHasKey(Concrete::VALID_KEY, $resolved);
+        $this->assertArrayNotHasKey(Concrete::ALIAS_KEY, $resolved);
+        $this->assertArrayHasKey(Concrete::NULL_KEY, $resolved);
+    }
+
+    /**
+     * @test
      * @testdox forget() should simply return if the given entry does not exist in cache
      */
     public function forget_should_simply_return_if_the_given_entry_does_not_exist()

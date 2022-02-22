@@ -308,10 +308,31 @@ var_dump($container->hasResolved(Apple::class));
 
 As you can see, the `Fruit` and `Apple` definitions will always be cached, as they use `get()` within the definition for `Lunch`. In some situations this may be desirable, but generally it's best to use `$container->make()` in your resolutions.
 
-> #### 🗑  Clearing cached dependencies
-> If you need to clear the cache for a particular dependency, you may call `$container->forget(SomeAbstract::class)` and subsequent calls to `$container->get()` will re-generate the cached value.
-
 If the container is asked for a dependency for which it doesn't have a definition, it will throw a `StellarWP\Container\Exceptions\NotFoundException`. In order to avoid this, you may see if a definition exists via `$container->has(SomeAbstract::class)`. You may also see whether or not the container has a cached resolution with `$container->resolved(SomeAbstract::class)`.
+
+#### Clearing cached dependencies
+
+If you need to clear the cache for a particular dependency, you may call `$container->forget(SomeAbstract::class)` and subsequent calls to `$container->get()` will re-generate the cached value.
+
+It's important to note that calling `$container->forget()` on a dependency will **not** recursively remove its sub-dependencies, e.g.:
+
+```php
+$container = new Container();
+$container->get(Lunch::class);
+$container->forget(Lunch::class);
+
+var_dump($container->hasResolved(Lunch::class));
+# => bool(false)
+
+var_dump($container->hasResolved(SandwichInterface::class));
+# => bool(true)
+```
+
+If you need to forget multiple dependencies, you may pass them as separate arguments to `$container->forget()`:
+
+```php
+$container->forget(Lunch::class, SandwichInterface::class);
+```
 
 ### Using the container as a Singleton
 

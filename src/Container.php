@@ -80,13 +80,15 @@ abstract class Container implements ContainerInterface
     /**
      * Remove the cached resolution for the given abstract.
      *
-     * @param string $abstract The abstract identifier to forget.
+     * @param string ...$abstracts The abstract identifier(s) to forget.
      *
      * @return $this
      */
-    public function forget($abstract)
+    public function forget(...$abstracts)
     {
-        unset($this->resolved[$abstract]);
+        foreach ($abstracts as $abstract) {
+            unset($this->resolved[$abstract]);
+        }
 
         return $this;
     }
