@@ -1,0 +1,87 @@
+{
+    "name": "stellarwp/container",
+    "description": "A PSR-11 Dependency Injection (DI) container for use in WordPress codebases",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "StellarWP",
+            "homepage": "https://stellarwp.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/stellarwp/container/issues",
+        "source": "https://github.com/stellarwp/container"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:stellarwp/coding-standards.git"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "StellarWP\\Container\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^5.6 | ^7.0 | ^8.0",
+        "psr/container": "~1.0.0"
+    },
+    "require-dev": {
+        "league/climate": "^3.8",
+        "stellarwp/coding-standards": "dev-develop",
+        "szepeviktor/phpstan-wordpress": "^1.0",
+        "yoast/phpunit-polyfills": "^1.0"
+    },
+    "provide": {
+        "psr/container-implementation": "^1.0.0"
+    },
+    "scripts": {
+        "test": [
+            "@test:all"
+        ],
+        "test:all": [
+            "@test:unit",
+            "@test:standards",
+            "@test:analysis"
+        ],
+        "test:analysis": [
+            "phpstan analyse -c phpstan.neon.dist --memory-limit=512M"
+        ],
+        "test:benchmark": [
+            "php tests/benchmark.php"
+        ],
+        "test:coverage": [
+            "phpdbg -qrr -d memory_limit=-1 ./vendor/bin/phpunit --coverage-html=tests/coverage --colors=always"
+        ],
+        "test:standards": [
+            "phpcs --cache",
+            "php-cs-fixer fix --config=.php-cs-fixer.dist.php -v --diff --dry-run"
+        ],
+        "test:unit": [
+            "phpunit --testdox --colors=always"
+        ]
+    },
+    "scripts-descriptions": {
+        "test:all": "Run all automated tests.",
+        "test:analysis": "Perform static code analysis.",
+        "test:benchmark": "Benchmark the container performance.",
+        "test:coverage": "Generate code coverage reports.",
+        "test:standards": "Check coding standards.",
+        "test:unit": "Run all of the PHPUnit test suites."
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
