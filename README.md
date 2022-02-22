@@ -178,6 +178,8 @@ In our PB&J example above, notice that the callback for `SandwichInterface` was 
 
 For example, if we were using homemade bread, we might have an implementation for `Bread` defined that accepts `Flour`, `Yeast`, `Water`, and `Salt` as dependencies. We would define `Bread` in the config with these dependencies and, upon calling `$container->make(Bread::class)` within the definition for `SandwichInterface` the container would automatically resolve `Bread` before injecting it.
 
+Please note that a `StellarWP\Container\Exceptions\RecursiveDependencyException` will be thrown if a recursive loop is detected when resolving dependencies (e.g. `DrinkingCoffee` depends on `MakingCoffee`, which depends on `BeingFunctionalInTheMorning`, which depends on `DrinkingCoffee`).
+
 #### Aliases
 
 Sometimes it's helpful to add one container definition to point to another, especially when building base containers meant to be extended or introducing a container to an existing codebase.

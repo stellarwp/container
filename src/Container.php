@@ -11,6 +11,7 @@ namespace StellarWP\Container;
 use Psr\Container\ContainerInterface;
 use StellarWP\Container\Exceptions\ContainerException;
 use StellarWP\Container\Exceptions\NotFoundException;
+use StellarWP\Container\Exceptions\RecursiveDependencyException;
 
 /**
  * A PSR-11 dependency injection container class.
@@ -25,6 +26,13 @@ abstract class Container implements ContainerInterface
      * @var bool True if resolutions should be cached, false otherwise.
      */
     protected $cacheResolutions = false;
+
+    /**
+     * Abstracts currently being resolved.
+     *
+     * @var Array<string,bool>
+     */
+    protected $currentlyResolving = [];
 
     /**
      * Extensions to the default container configuration.
@@ -153,8 +161,9 @@ abstract class Container implements ContainerInterface
      *
      * @param string $abstract The dependency's abstract identifier.
      *
-     * @throws NotFoundException  If no entry was found for this abstract.
-     * @throws ContainerException Error while retrieving the entry.
+     * @throws NotFoundException            If no entry was found for this abstract.
+     * @throws ContainerException           Error while retrieving the entry.
+     * @throws RecursiveDependencyException If a recursive loop is detected during resolution.
      *
      * @return object The resolved dependency.
      */
@@ -168,7 +177,15 @@ abstract class Container implements ContainerInterface
             );
         }
 
+        if (isset($this->currentlyResolving[$abstract])) {
+            throw new RecursiveDependencyException(
+                sprintf('Recursion detected when attempting to resolve "%s"', $abstract)
+            );
+        }
+
         try {
+            $this->currentlyResolving[$abstract] = true;
+
             // If the definition is null, simply call `new $abstract()`.
             if (null === $config[$abstract]) {
                 $resolved = new $abstract();
@@ -182,6 +199,10 @@ abstract class Container implements ContainerInterface
                 $resolved = $config[$abstract]($this);
             }
         } catch (\Exception $e) {
+            if ($e instanceof RecursiveDependencyException) {
+                throw $e;
+            }
+
             throw new ContainerException(
                 sprintf('An error occured building "%s": %s', $abstract, $e->getMessage()),
                 $e->getCode(),
@@ -193,6 +214,8 @@ abstract class Container implements ContainerInterface
         if ($this->cacheResolutions) {
             $this->resolved[$abstract] = $resolved;
         }
+
+        unset($this->currentlyResolving[$abstract]);
 
         return $resolved;
     }
