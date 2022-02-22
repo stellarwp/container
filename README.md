@@ -311,7 +311,7 @@ As you can see, the `Fruit` and `Apple` definitions will always be cached, as th
 > #### 🗑  Clearing cached dependencies
 > If you need to clear the cache for a particular dependency, you may call `$container->forget(SomeAbstract::class)` and subsequent calls to `$container->get()` will re-generate the cached value.
 
-If the container is asked for a dependency for which it doesn't have a definition, it will throw a `StellarWP\Container\Exceptions\NotFoundException`. In order to avoid this, you may see if a definition exists via `$container->has(SomeAbstract::class)`. You may also see whether or not the container has a cached resolution with `$container->resolved( SomeAbstract::class)`.
+If the container is asked for a dependency for which it doesn't have a definition, it will throw a `StellarWP\Container\Exceptions\NotFoundException`. In order to avoid this, you may see if a definition exists via `$container->has(SomeAbstract::class)`. You may also see whether or not the container has a cached resolution with `$container->resolved(SomeAbstract::class)`.
 
 ### Using the container as a Singleton
 
