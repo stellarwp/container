@@ -35,7 +35,7 @@ abstract class Container implements ContainerInterface
     /**
      * Whether or not resolutions should be cached.
      *
-     * By default, this will be false but will be set to `true` when calling `get()`.
+     * By default, this will be 0 but will be incremented with each successive call to `get()`.
      *
      * @var int An integer representing the depth of the dependency caching.
      */
