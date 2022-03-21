@@ -230,7 +230,7 @@ abstract class Container implements ContainerInterface
         }
 
         // If the cache is enabled, cache this resolution.
-        if ($this->resolutionCacheDepth > 0) {
+        if ($this->resolutionCacheDepth > 0 && ! array_key_exists($abstract, $this->resolved)) {
             $this->resolved[$abstract] = $resolved;
         }
 
