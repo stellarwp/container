@@ -440,6 +440,19 @@ class ContainerTest extends TestCase
 
     /**
      * @test
+     * @testdox Calling make() should not overwrite cached resolutions
+     */
+    public function calling_make_should_not_overwrite_nested_cached_resolutions()
+    {
+        $container = new Concrete();
+        $valid     = $container->get(Concrete::VALID_KEY);
+
+        $container->get(Concrete::NESTED_MAKE_KEY);
+        $this->assertSame($valid, $container->get(Concrete::VALID_KEY));
+    }
+
+    /**
+     * @test
      * @testdox make() should throw a NotFoundException if the given abstract is undefined
      */
     public function make_should_throw_a_NotFoundException_if_the_given_abstract_is_undefined()
