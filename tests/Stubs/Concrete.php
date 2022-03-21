@@ -31,13 +31,19 @@ class Concrete extends Container
                 return new \stdClass();
             },
             self::NESTED_GET_KEY       => function ($app) {
-                return new \ArrayObject($app->get(self::VALID_KEY));
+                return new \ArrayObject([
+                    'prop' => $app->get(self::VALID_KEY),
+                ]);
             },
             self::NESTED_MAKE_KEY      => function ($app) {
-                return new \ArrayObject($app->make(self::VALID_KEY));
+                return new \ArrayObject([
+                    'prop' => $app->make(self::VALID_KEY),
+                ]);
             },
             self::NESTED_UNDEFINED_KEY => function ($app) {
-                return new \ArrayObject($app->make(self::UNDEFINED_KEY));
+                return new \ArrayObject([
+                    'prop' => $app->make(self::UNDEFINED_KEY),
+                ]);
             },
             self::NULL_KEY             => null,
             self::ALIAS_KEY            => self::VALID_KEY,

@@ -184,12 +184,19 @@ abstract class Container implements ContainerInterface
     {
         $config = array_merge($this->config(), $this->extensions);
 
+        // If caching is enabled and we have a resolution, return it immediately.
+        if ($this->resolutionCacheDepth > 0 && array_key_exists($abstract, $this->resolved)) {
+            return $this->resolved[$abstract];
+        }
+
+        // No definition exists in the config for this abstract.
         if (! array_key_exists($abstract, $config)) {
             throw new NotFoundException(
                 sprintf('No container definition could be found for "%s".', $abstract)
             );
         }
 
+        // Catch recursive resolutions.
         if (isset($this->currentlyResolving[$abstract])) {
             throw new RecursiveDependencyException(
                 sprintf('Recursion detected when attempting to resolve "%s"', $abstract)
@@ -230,7 +237,7 @@ abstract class Container implements ContainerInterface
         }
 
         // If the cache is enabled, cache this resolution.
-        if ($this->resolutionCacheDepth > 0 && ! array_key_exists($abstract, $this->resolved)) {
+        if ($this->resolutionCacheDepth > 0) {
             $this->resolved[$abstract] = $resolved;
         }
 
