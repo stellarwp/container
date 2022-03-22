@@ -440,15 +440,24 @@ class ContainerTest extends TestCase
 
     /**
      * @test
-     * @testdox Calling make() should not overwrite cached resolutions
+     * @testdox Calling make() should not overwrite cached, nested resolutions
      */
     public function calling_make_should_not_overwrite_nested_cached_resolutions()
     {
         $container = new Concrete();
         $valid     = $container->get(Concrete::VALID_KEY);
 
-        $container->get(Concrete::NESTED_MAKE_KEY);
-        $this->assertSame($valid, $container->get(Concrete::VALID_KEY));
+        $instance = $container->get(Concrete::NESTED_MAKE_KEY);
+        $this->assertSame(
+            $valid,
+            $instance->offsetGet('prop'),
+            'The resolved value should have been returned from cache.'
+        );
+        $this->assertSame(
+            $valid,
+            $container->get(Concrete::VALID_KEY),
+            'The cache should not have been overwritten'
+        );
     }
 
     /**
