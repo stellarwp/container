@@ -19,15 +19,6 @@ use StellarWP\Container\Exceptions\RecursiveDependencyException;
 abstract class Container implements ContainerInterface
 {
     /**
-     * Whether or not resolutions should be cached.
-     *
-     * By default, this will be false but will be set to `true` when calling `get()`.
-     *
-     * @var bool True if resolutions should be cached, false otherwise.
-     */
-    protected $cacheResolutions = false;
-
-    /**
      * Abstracts currently being resolved.
      *
      * @var Array<string,bool>
@@ -40,6 +31,15 @@ abstract class Container implements ContainerInterface
      * @var Array<string,callable|object|string|null> A mapping of abstracts to callables.
      */
     protected $extensions = [];
+
+    /**
+     * Whether or not resolutions should be cached.
+     *
+     * By default, this will be 0 but will be incremented with each successive call to `get()`.
+     *
+     * @var int An integer representing the depth of the dependency caching.
+     */
+    protected $resolutionCacheDepth = 0;
 
     /**
      * A cache of all resolved dependencies.
@@ -123,10 +123,15 @@ abstract class Container implements ContainerInterface
      */
     public function get($abstract)
     {
-        if (! array_key_exists($abstract, $this->resolved)) {
-            $this->cacheResolutions = true;
-            $this->make($abstract);
-            $this->cacheResolutions = false;
+        /*
+         * If we don't yet have a resolution for this abstract, increment the resolutionCacheDepth;
+         * if this value is > 0, calls to the make() command for sub-dependencies will also be
+         * cached as if they were called via get().
+         */
+        if (! isset($this->resolved[$abstract])) {
+            $this->resolutionCacheDepth++;
+            $this->resolved[$abstract] = $this->make($abstract);
+            $this->resolutionCacheDepth--;
         }
 
         return $this->resolved[$abstract];
@@ -179,12 +184,19 @@ abstract class Container implements ContainerInterface
     {
         $config = array_merge($this->config(), $this->extensions);
 
+        // If caching is enabled and we have a resolution, return it immediately.
+        if ($this->resolutionCacheDepth > 0 && array_key_exists($abstract, $this->resolved)) {
+            return $this->resolved[$abstract];
+        }
+
+        // No definition exists in the config for this abstract.
         if (! array_key_exists($abstract, $config)) {
             throw new NotFoundException(
                 sprintf('No container definition could be found for "%s".', $abstract)
             );
         }
 
+        // Catch recursive resolutions.
         if (isset($this->currentlyResolving[$abstract])) {
             throw new RecursiveDependencyException(
                 sprintf('Recursion detected when attempting to resolve "%s"', $abstract)
@@ -214,11 +226,9 @@ abstract class Container implements ContainerInterface
             } else {
                 throw new ContainerException(sprintf('Unhandled definition type (%s)', gettype($config[$abstract])));
             }
+        } catch (RecursiveDependencyException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            if ($e instanceof RecursiveDependencyException) {
-                throw $e;
-            }
-
             throw new ContainerException(
                 sprintf('An error occured building "%s": %s', $abstract, $e->getMessage()),
                 $e->getCode(),
@@ -227,7 +237,7 @@ abstract class Container implements ContainerInterface
         }
 
         // If the cache is enabled, cache this resolution.
-        if ($this->cacheResolutions) {
+        if ($this->resolutionCacheDepth > 0) {
             $this->resolved[$abstract] = $resolved;
         }
 

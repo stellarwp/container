@@ -234,9 +234,22 @@ class ContainerTest extends TestCase
 
     /**
      * @test
-     * @testdox get() should recursively cache dependencies, even if they use make()
+     * @testdox get() should recursively cache dependencies using get()
      */
-    public function get_should_recursively_cache_dependencies_even_if_they_use_make()
+    public function get_should_recursively_cache_dependencies_using_get()
+    {
+        $container = new Concrete();
+
+        $container->get(Concrete::NESTED_GET_KEY);
+        $this->assertTrue($container->hasResolved(Concrete::NESTED_GET_KEY));
+        $this->assertTrue($container->hasResolved(Concrete::VALID_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox get() should recursively cache dependencies using make
+     */
+    public function get_should_recursively_cache_dependencies_using_make()
     {
         $container = new Concrete();
 
@@ -287,6 +300,16 @@ class ContainerTest extends TestCase
 
         $this->expectException(ContainerException::class);
         $container->get(Concrete::EXCEPTION_KEY);
+    }
+
+    /**
+     * @test
+     * @testdox get() should throw a ContainerException if any recursive dependencies are undefined
+     */
+    public function get_should_throw_a_ContainerException_if_any_recursive_dependencies_are_undefined()
+    {
+        $this->expectException(ContainerException::class);
+        (new Concrete())->get(Concrete::NESTED_UNDEFINED_KEY);
     }
 
     /**
@@ -413,6 +436,28 @@ class ContainerTest extends TestCase
 
         $this->assertNotSame($cached, $uncached);
         $this->assertSame($cached, $container->get(Concrete::VALID_KEY));
+    }
+
+    /**
+     * @test
+     * @testdox Calling make() should not overwrite cached, nested resolutions
+     */
+    public function calling_make_should_not_overwrite_nested_cached_resolutions()
+    {
+        $container = new Concrete();
+        $valid     = $container->get(Concrete::VALID_KEY);
+
+        $instance = $container->get(Concrete::NESTED_MAKE_KEY);
+        $this->assertSame(
+            $valid,
+            $instance->offsetGet('prop'),
+            'The resolved value should have been returned from cache.'
+        );
+        $this->assertSame(
+            $valid,
+            $container->get(Concrete::VALID_KEY),
+            'The cache should not have been overwritten'
+        );
     }
 
     /**
