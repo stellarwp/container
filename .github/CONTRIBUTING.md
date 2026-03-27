@@ -112,7 +112,7 @@ public function testItDoesTheThing() { /* ... */ }
 public function it_does_the_thing() { /* ... */ }
 ```
 
-Our coding standards are enforced automatically as part of the Continuous Integration (CI) pipeline via [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) and [PHP-CS-Fixer](https://cs.symfony.com/). You may also run these coding standards checks at any time with the following command:
+Our coding standards are enforced automatically as part of the Continuous Integration (CI) pipeline via [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) and [PHP-CS-Fixer](https://cs.symfony.com/). You may also run these coding standards checks at any time with the following command:
 
 ```sh
 $ composer test:standards
